@@ -2,11 +2,11 @@ package ua.nure.ponomarev.dao.impl;
 
 import ua.nure.ponomarev.dao.api.UserDao;
 import ua.nure.ponomarev.web.exception.DBException;
-import ua.nure.ponomarev.db.dataSource.DataSource;
 import ua.nure.ponomarev.entity.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -47,7 +47,7 @@ public class DbUserDao implements UserDao {
             logger.error("Could not create user", ex);
             throw new DBException(ex);
         } finally {
-            dataSource.close(preparedStatement);
+           closePrepareStatement(preparedStatement);
         }
     }
 
@@ -64,9 +64,6 @@ public class DbUserDao implements UserDao {
         } catch (SQLException ex) {
             logger.error("Something wrong with data filling", ex);
             throw new DBException(ex);
-        }
-        finally {
-         closeResultSet(resultSet);
         }
         return user;
     }
@@ -85,7 +82,7 @@ public class DbUserDao implements UserDao {
             throw new DBException(ex);
         } finally {
             closeResultSet(resultSet);
-            dataSource.close(preparedStatement);
+           closePrepareStatement(preparedStatement);
         }
     }
     @Override
@@ -104,7 +101,7 @@ public class DbUserDao implements UserDao {
         }
         finally {
          closeResultSet(resultSet);
-            dataSource.close(preparedStatement);
+           closePrepareStatement(preparedStatement);
         }
     }
     @Override
@@ -123,7 +120,7 @@ public class DbUserDao implements UserDao {
         }
         finally {
           closeResultSet(resultSet);
-            dataSource.close(preparedStatement);
+           closePrepareStatement(preparedStatement);
         }
     }
 
@@ -137,6 +134,9 @@ public class DbUserDao implements UserDao {
         } catch (SQLException e) {
             logger.error("Email was`nt activated",e);
             throw new DBException(e);
+        }
+        finally {
+            closePrepareStatement(preparedStatement);
         }
     }
 
@@ -159,7 +159,7 @@ public class DbUserDao implements UserDao {
         }
         finally {
          closeResultSet(resultSet);
-         dataSource.close(preparedStatement);
+         closePrepareStatement(preparedStatement);
         }
         return list;
     }
@@ -172,6 +172,15 @@ public class DbUserDao implements UserDao {
         } catch (SQLException e) {
             logger.error("Result set has`nt been closed");
             throw  new DBException(e);
+        }
+    }
+    private void closePrepareStatement(PreparedStatement preparedStatement){
+        if(preparedStatement!=null){
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                logger.error("PreparedStatement was not closed",e);
+            }
         }
     }
 

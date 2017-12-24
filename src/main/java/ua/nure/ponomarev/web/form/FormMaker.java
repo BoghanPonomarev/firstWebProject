@@ -20,7 +20,7 @@ public class FormMaker extends AbstractFormMaker {
         result.setLogin(request.getParameter("login"));
         result.setPhoneNumber(request.getParameter("phone"));
         result.setFirstPassword(request.getParameter("password"));
-        result.setSecondPassword(request.getParameter("secondPassword"));
+        result.setSecondPassword(request.getParameter("password_repeat"));
         return result;
         //TODO
     }

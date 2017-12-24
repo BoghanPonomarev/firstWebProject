@@ -56,7 +56,7 @@ public class RegistrationServlet extends HttpServlet {
         }
         if (!errors.isEmpty()) {
             request.setAttribute("errors", errors);
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/html/registration.jsp");
+            RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/registration.jsp");
             requestDispatcher.forward(request, response);
         }
 
@@ -64,6 +64,7 @@ public class RegistrationServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-       doPost(request,response);
+        RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/registration.jsp");
+        requestDispatcher.forward(request, response);
     }
 }

@@ -3,8 +3,8 @@ package ua.nure.ponomarev.transactions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.web.exception.DBException;
-import ua.nure.ponomarev.db.dataSource.DataSource;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class Transaction{
             }
         }
         finally {
-            dataSource.close(connection);
+            close(connection);
         }
         return result.iterator();
     }
@@ -73,8 +73,17 @@ public class Transaction{
             }
         }
         finally {
-            dataSource.close(connection);
+            close(connection);
         }
         return result;
+    }
+    private void close(Connection connection){
+        try {
+            if(connection!=null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            logger.error("Connection was not closed closed",e);
+        }
     }
 }

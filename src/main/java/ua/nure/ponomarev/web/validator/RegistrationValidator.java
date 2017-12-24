@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class RegistrationValidator implements Validator<RegistrationForm> {
     private Pattern emailPattern = Pattern.compile("[\\w-]+([^@,\\s<>\\(\\)]*[\\w-]+)?@[\\w-]+(\\.[\\w-]+)*\\.[a-z]{2,}", Pattern.UNICODE_CASE);
     private Pattern loginPasswordPattern = Pattern.compile("[A-Za-zа-яА-я0-9\\-\\_]+", Pattern.UNICODE_CASE);
-    private Pattern phoneNumberPattern = Pattern.compile("^((\\+380)[\\- ]?)?(\\(?\\d{9,10}\\)?)$");
+    private Pattern phoneNumberPattern = Pattern.compile("\\d{10}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}");
 
     public Map<String, String> validate(RegistrationForm form) {
         Map<String, String> result = new HashMap<>();

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+    <Resource name="jdbc/data_source" auth="Container" type="javax.sql.DataSource"
+              maxActive="100" maxIdle="40" maxWait="10000" username="Bohdan" password="1111"
+              driverClassName="com.mysql.jdbc.Driver" defaultAutoCommit="true"
+              defaultTransactionIsolation="REPEATABLE_READ"
+              url="jdbc:mysql://localhost/webproject"
+              validationQuery = "Select 1"/>
+</Context>
