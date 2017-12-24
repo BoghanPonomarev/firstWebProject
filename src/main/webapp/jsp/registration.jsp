@@ -26,7 +26,7 @@
     <c:out value="${error.value}"/><br>
 </c:forEach>
 <div class="container">
-    <form class="registration" id="registration" method="post" action="/app/registration">
+    <form class="registration" id="registration" method="post" action="${contextPath}/registration">
         <h1>Registration Form</h1>
 
         <label for="login">
@@ -86,6 +86,5 @@
     </form>
 </div>
 
-<script src="${contextPath}/js/script.js"></script>
+<script src="${contextPath}/js/reg_validation_script.js"></script>
 </body>
-</html>

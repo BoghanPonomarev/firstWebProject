@@ -1,11 +1,11 @@
-package ua.nure.ponomarev.web.mail;
+package ua.nure.ponomarev.notification.mail_notification;
 
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.*;
-
+import ua.nure.ponomarev.notification.mail_notification.Token;
 /**
  * @author Bogdan_Ponamarev.
  */
@@ -63,6 +63,7 @@ public class TokenSet implements Set<Token> {
         return tokens.toArray(a);
     }
 
+
     @Override
     public boolean add(Token token) {
         return tokens.add(token);
@@ -77,6 +78,7 @@ public class TokenSet implements Set<Token> {
     public boolean containsAll(Collection<?> c) {
         return tokens.containsAll(c);
     }
+
 
     @Override
     public boolean addAll(Collection<? extends Token> c) {

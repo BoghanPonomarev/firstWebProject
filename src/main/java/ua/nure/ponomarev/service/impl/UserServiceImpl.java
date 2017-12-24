@@ -1,9 +1,9 @@
 package ua.nure.ponomarev.service.impl;
 
-import ua.nure.ponomarev.dao.api.UserDao;
+import ua.nure.ponomarev.dao.UserDao;
 import ua.nure.ponomarev.web.exception.DBException;
 import ua.nure.ponomarev.entity.User;
-import ua.nure.ponomarev.service.api.UserService;
+import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.transactions.Transaction;
 
 /**
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean addUser(User user) throws DBException {
+    public int addUser(User user) throws DBException {
         return  transaction.doWithSingleTransaction((connection -> {return userDao.create(user,connection);}));
     }
 

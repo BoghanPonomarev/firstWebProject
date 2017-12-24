@@ -5,11 +5,11 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.web.exception.DBException;
-import ua.nure.ponomarev.service.api.UserService;
+import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.form.AbstractFormMaker;
 import ua.nure.ponomarev.web.form.RegistrationForm;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.web.mail.MailSender;
+import ua.nure.ponomarev.notification.mail_notification.MailSender;
 import ua.nure.ponomarev.web.validator.Validator;
 
 import javax.servlet.RequestDispatcher;
@@ -59,7 +59,6 @@ public class RegistrationServlet extends HttpServlet {
             RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/registration.jsp");
             requestDispatcher.forward(request, response);
         }
-
 
     }
 

@@ -118,7 +118,7 @@ var phoneValiditiChecks= [
             return !input.value.match(/^\d{10}|(?:\d{3}-){2}\d{4}|\(\d{3}\)\d{3}-?\d{4}$/im);
         },
         invalidityMessage: 'Phone must have correct format',
-        element: document.querySelector('label[for="phone"] .input-requirements li:nth-child(1)')
+        element: document.querySelector('label[for="phone_notification"] .input-requirements li:nth-child(1)')
     }
 ];
 var passwordValidityChecks = [
@@ -161,7 +161,7 @@ var passwordRepeatValidityChecks = [
 
 var usernameInput = document.getElementById('login');
 var emailInput = document.getElementById('email');
-var phoneInput = document.getElementById('phone');
+var phoneInput = document.getElementById('phone_notification');
 var passwordInput = document.getElementById('password');
 var passwordRepeatInput = document.getElementById('password_repeat');
 

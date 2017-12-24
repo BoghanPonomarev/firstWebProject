@@ -1,4 +1,4 @@
-package ua.nure.ponomarev.web.mail;
+package ua.nure.ponomarev.notification.mail_notification;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +31,7 @@ public class MailSenderImpl implements MailSender {
             InputStream input = classLoader.getResourceAsStream("Email.properties");
             mailProperties.load(input);
         } catch (IOException e) {
-           logger.fatal("I could not get the settings for working with mail",e);
+           logger.fatal("I could not get the settings for working with mail_notification",e);
         }
     }
 
@@ -39,7 +39,7 @@ public class MailSenderImpl implements MailSender {
     public void sendEmail(String recipientEmail) throws MailException {
         Properties props = System.getProperties();
         if(!mailProperties.containsKey("mail.content")){
-            logger.error("Could not send mail because properties file not found");
+            logger.error("Could not send mail_notification because properties file not found");
             throw new MailException("Dear user no we can`t send massage to you!\nWe give our apologise...", LogicException.ExceptionType.SERVER_EXCEPTION,new FileNotFoundException());
         }
         props.put("mail.smtp.port", mailProperties.getProperty("mail.smtp.port"));
@@ -59,7 +59,7 @@ public class MailSenderImpl implements MailSender {
             Transport.send(msg , mailProperties.getProperty("mail.login"),mailProperties.getProperty("mail.password"));
             tokens.add(new Token(recipientEmail,System.currentTimeMillis()/60000,id));
         } catch (MessagingException e) {
-         logger.error("Could not send mail", e);
+         logger.error("Could not send mail_notification", e);
          throw new MailException("Dear user no we can`t send massage to you!\nWe give our apologise...", LogicException.ExceptionType.SERVER_EXCEPTION,e);
         }
     }

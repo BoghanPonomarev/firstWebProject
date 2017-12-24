@@ -2,13 +2,13 @@ package ua.nure.ponomarev.web.listener;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.nure.ponomarev.dao.impl.DbUserDao;
-import ua.nure.ponomarev.service.api.UserService;
+import ua.nure.ponomarev.dao.impl.SqlUserDao;
+import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.service.impl.UserServiceImpl;
 import ua.nure.ponomarev.transactions.Transaction;
 import ua.nure.ponomarev.web.form.FormMaker;
-import ua.nure.ponomarev.web.mail.MailSender;
-import ua.nure.ponomarev.web.mail.MailSenderImpl;
+import ua.nure.ponomarev.notification.mail_notification.MailSender;
+import ua.nure.ponomarev.notification.mail_notification.MailSenderImpl;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
 
 import javax.annotation.Resource;
@@ -54,7 +54,7 @@ public class ServletListener implements ServletContextListener {
 
     private void userServiceInitialized(ServletContext servletContext) {
         transaction = new Transaction(dataSource);
-        userService = new UserServiceImpl(transaction, new DbUserDao(dataSource));
+        userService = new UserServiceImpl(transaction, new SqlUserDao(dataSource));
         servletContext.setAttribute("user_service", userService);
     }
 

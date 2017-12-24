@@ -1,11 +1,11 @@
 package ua.nure.ponomarev.web.servlets;
 
 import ua.nure.ponomarev.web.exception.DBException;
-import ua.nure.ponomarev.service.api.UserService;
+import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.exception.LogicException;
 import ua.nure.ponomarev.web.exception.MailException;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.web.mail.MailSender;
+import ua.nure.ponomarev.notification.mail_notification.MailSender;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;

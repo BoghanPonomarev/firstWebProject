@@ -1,4 +1,4 @@
-package ua.nure.ponomarev.web.mail;
+package ua.nure.ponomarev.notification.mail_notification;
 
 import ua.nure.ponomarev.web.exception.MailException;
 

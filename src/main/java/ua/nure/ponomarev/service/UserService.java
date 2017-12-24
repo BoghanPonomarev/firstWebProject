@@ -1,4 +1,4 @@
-package ua.nure.ponomarev.service.api;
+package ua.nure.ponomarev.service;
 
 import ua.nure.ponomarev.web.exception.DBException;
 import ua.nure.ponomarev.entity.User;
@@ -11,7 +11,7 @@ public interface UserService {
 
     boolean isExistPhoneNumber(String phoneNumber) throws DBException;
 
-    boolean addUser(User user) throws DBException;
+    int addUser(User user) throws DBException;
 
     boolean activateEmail(String email) throws DBException;
 }

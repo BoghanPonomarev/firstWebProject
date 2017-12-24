@@ -1,4 +1,4 @@
-package ua.nure.ponomarev.web.mail;
+package ua.nure.ponomarev.notification.mail_notification;
 
 /**
  * @author Bogdan_Ponamarev.
@@ -11,9 +11,9 @@ public class Token {
 
     private long time;
 
-    public Token(String email,long timeMinets,int id){
+    public Token(String email,long timeMinuets,int id){
         this.email=email;
-        this.time= timeMinets;
+        this.time= timeMinuets;
         this.id = id;
     }
 

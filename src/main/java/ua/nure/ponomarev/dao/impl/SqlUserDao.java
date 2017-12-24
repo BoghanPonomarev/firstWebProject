@@ -1,57 +1,65 @@
 package ua.nure.ponomarev.dao.impl;
 
-import ua.nure.ponomarev.dao.api.UserDao;
+import ua.nure.ponomarev.dao.UserDao;
 import ua.nure.ponomarev.web.exception.DBException;
 import ua.nure.ponomarev.entity.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 /**
  * @author Bogdan_Ponamarev.
  * Waiting for task(Need changing) WHEN YOU WILL WRITE MY_RES_SET -CHANGE THIS CLASS(CLOSE RESULT SET)
  */
-public class DbUserDao implements UserDao {
+public class SqlUserDao implements UserDao {
 
-    private static final String CREATE = "INSERT INTO webproject.users (login,password,phone_number,email) VALUES (?,?,?,?)";
-    private static final String SELECT_BY_LOGIN = "SELECT * FROM webproject.users WHERE login=?";
-    private static final String IS_EXIST_EMAIL = "SELECT * FROM webproject.users WHERE email=?";
-    private static final String IS_EXIST_PHONE_NUMBER = "SELECT * FROM webproject.users WHERE phone_number=?";
-    private static final String GET_ALL = "SELECT * FROM webproject.users";
-    private static final String ACTIVATE_EMAIL = "SET webproject.users is_activated_email = 1 WHERE email = ?";
-    private Logger logger = LogManager.getLogger(DbUserDao.class);
+    private static final String SQL_QUERY_CREATE = "INSERT INTO webproject.users (login,password,phone_number,email) VALUES (?,?,?,?)";
+    private static final String SQL_QUERY_SELECT_BY_LOGIN = "SELECT * FROM webproject.users WHERE login=?";
+    private static final String SQL_QUERY_IS_EXIST_EMAIL = "SELECT * FROM webproject.users WHERE email=?";
+    private static final String SQL_QUERY_IS_EXIST_PHONE_NUMBER = "SELECT * FROM webproject.users WHERE phone_number=?";
+    private static final String SQL_QUERY_GET_ALL = "SELECT * FROM webproject.users";
+    private static final String SQL_QUERY_ACTIVATE_EMAIL = "SET webproject.users is_activated_email = 1 WHERE email = ?";
+    private Logger logger = LogManager.getLogger(SqlUserDao.class);
     private DataSource dataSource;
 
-    public DbUserDao(DataSource dataSource) {
+    public SqlUserDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+    /**
+     *
+     * @return integer number that is an id of particular user , or -1 if result set was empty
+     * @throws DBException
+     */
     @Override
-    public boolean create(User user, Connection connection) throws DBException {
+    public int create(User user, Connection connection) throws DBException {
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet=null;
         try {
-            preparedStatement = connection.prepareStatement(CREATE);
+            preparedStatement = connection.prepareStatement(SQL_QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setString(2, user.getPassword());
             preparedStatement.setString(3, user.getPhoneNumber());
             preparedStatement.setString(4, user.getEmail());
-            preparedStatement.execute();
-            return true;
+             preparedStatement.executeUpdate();
+             resultSet = preparedStatement.getGeneratedKeys();
+             if(resultSet.next()){
+                 return resultSet.getInt(1);
+             }
         } catch (SQLException ex) {
             logger.error("Could not create user", ex);
             throw new DBException(ex);
         } finally {
-           closePrepareStatement(preparedStatement);
+            closeResultSet(resultSet);
+            closePrepareStatement(preparedStatement);
         }
+        return -1;
     }
 
-    private User createUser(ResultSet resultSet) throws DBException {
+    private User fillUser(ResultSet resultSet) throws DBException {
         User user = null;
         try {
             if (resultSet.next()) {
@@ -69,14 +77,14 @@ public class DbUserDao implements UserDao {
     }
 
     @Override
-    public User getBy(String login, Connection connection) throws DBException {
+    public User get(String login, Connection connection) throws DBException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet=null;
         try {
-            preparedStatement = connection.prepareStatement(SELECT_BY_LOGIN);
+            preparedStatement = connection.prepareStatement(SQL_QUERY_SELECT_BY_LOGIN);
             preparedStatement.setString(1, login);
            resultSet = preparedStatement.executeQuery();
-            return createUser(resultSet);
+            return fillUser(resultSet);
         } catch (SQLException ex) {
             logger.error("Could not get user", ex);
             throw new DBException(ex);
@@ -90,7 +98,7 @@ public class DbUserDao implements UserDao {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
         try {
-            preparedStatement = connection.prepareStatement(IS_EXIST_EMAIL);
+            preparedStatement = connection.prepareStatement(SQL_QUERY_IS_EXIST_EMAIL);
             preparedStatement.setString(1, email);
             resultSet = preparedStatement.executeQuery();
             return resultSet.next();
@@ -109,7 +117,7 @@ public class DbUserDao implements UserDao {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
         try {
-            preparedStatement = connection.prepareStatement(IS_EXIST_PHONE_NUMBER);
+            preparedStatement = connection.prepareStatement(SQL_QUERY_IS_EXIST_PHONE_NUMBER);
             preparedStatement.setString(1, phoneNumber);
             resultSet = preparedStatement.executeQuery();
             return resultSet.next();
@@ -128,7 +136,7 @@ public class DbUserDao implements UserDao {
     public boolean activateEmail(String email,Connection connection) throws DBException {
         PreparedStatement preparedStatement= null;
         try {
-            preparedStatement=connection.prepareStatement(ACTIVATE_EMAIL);
+            preparedStatement=connection.prepareStatement(SQL_QUERY_ACTIVATE_EMAIL);
             preparedStatement.setString(1,email);
             return preparedStatement.executeUpdate()!=0;
         } catch (SQLException e) {
@@ -146,10 +154,10 @@ public class DbUserDao implements UserDao {
         ResultSet resultSet = null;
         PreparedStatement preparedStatement=null;
         try {
-            preparedStatement=connection.prepareStatement(GET_ALL);
+            preparedStatement=connection.prepareStatement(SQL_QUERY_GET_ALL);
             resultSet = preparedStatement.executeQuery();
             User user = null;
-            while ((user = createUser(resultSet)) != null) {
+            while ((user = fillUser(resultSet)) != null) {
                 list.add(user);
             }
         }
