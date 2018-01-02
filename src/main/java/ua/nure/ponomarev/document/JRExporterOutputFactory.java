@@ -20,19 +20,17 @@ public class JRExporterOutputFactory {
      */
     public static ExporterOutput getExporterOutput(OutputStream stream, DocumentType documentType) {
         switch (documentType) {
+            case XML:
+                return new SimpleXmlExporterOutput(stream);
+            case HTML:
+                return new SimpleHtmlExporterOutput(stream);
             case PDF:
             case DOCX:
             case XLS:
             case XLSX:
             case PPTX:
                 return new SimpleOutputStreamExporterOutput(stream);
-            case XML:
-                return new SimpleXmlExporterOutput(stream);
-            case HTML:
-                return new SimpleHtmlExporterOutput(stream);
             case RTF:
-            case CSV:
-                return new SimpleWriterExporterOutput(stream);
             default:
                 throw new NoSuchElementException("There is no stream for " + documentType);
         }

@@ -31,6 +31,14 @@ public class JRExporterFactory {
      */
     public static JRAbstractExporter getExporter(DocumentType documentType) {
         switch (documentType) {
+            case RTF:
+                return new JRRtfExporter();
+            case XLS:
+                return new JRXlsExporter();
+            case XLSX:
+                return new JRXlsxExporter();
+            case PPTX:
+                return new JRPptxExporter();
             case PDF:
                 return new JRPdfExporter();
             case DOCX:
@@ -39,16 +47,6 @@ public class JRExporterFactory {
                 return new JRXmlExporter();
             case HTML:
                 return new HtmlExporter();
-            case RTF:
-                return new JRRtfExporter();
-            case XLS:
-                return new JRXlsExporter();
-            case XLSX:
-                return new JRXlsxExporter();
-            case CSV:
-                return new JRCsvExporter();
-            case PPTX:
-                return new JRPptxExporter();
             default:
                 throw new NoSuchElementException("There is no exporter for " + documentType + " type");
         }

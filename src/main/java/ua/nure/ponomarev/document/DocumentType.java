@@ -18,13 +18,9 @@ public enum DocumentType {
     PDF("pdf", "application/pdf"),
     RTF("rtf", "application/rtf"),
     XML("xml", "application/xml"),
-    TEXT("text", "text/plain"),
-    TXT("txt", "text/plain"),
-    _1C("txt", "text/plain"),
     XLS("xls", "application/vnd.ms-excel"),
     XLSX("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
     HTML("html", "text/html"),
-    CSV("csv", "text/plain"),
     PPTX("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
 
     private static final Logger log = LogManager.getLogger(MethodHandles.lookup().lookupClass());
@@ -37,7 +33,7 @@ public enum DocumentType {
     }
 
     /**
-     * Constricts {@link DocumentType} from given format.
+     * Constricts document from given format.
      *
      * @param format - case insensitive format of document.
      * @return {@link DocumentType} - type of document.
