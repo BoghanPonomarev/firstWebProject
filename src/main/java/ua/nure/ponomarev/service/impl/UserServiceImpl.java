@@ -20,21 +20,21 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public boolean isExistEmail(String email) throws DBException {
-        return transaction.doWithSingleTransaction((connection)-> {return userDao.isExistEmail(email,connection);});
+        return transaction.doWithSingleTransaction(()->  userDao.isExistEmail(email));
     }
 
     @Override
     public boolean isExistPhoneNumber(String phoneNumber) throws DBException {
-        return transaction.doWithSingleTransaction((connection -> {return userDao.isExistPhone(phoneNumber,connection);}));
+        return transaction.doWithSingleTransaction(() -> userDao.isExistPhone(phoneNumber));
     }
 
     @Override
     public int addUser(User user) throws DBException {
-        return  transaction.doWithSingleTransaction((connection -> {return userDao.create(user,connection);}));
+        return  transaction.doWithSingleTransaction(() -> userDao.create(user));
     }
 
     @Override
     public boolean activateEmail(String email) throws DBException {
-        return  transaction.doWithSingleTransaction((connection -> {return userDao.activateEmail(email,connection);}));
+        return  transaction.doWithSingleTransaction(() ->userDao.activateEmail(email));
     }
 }

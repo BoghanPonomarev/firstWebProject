@@ -22,7 +22,7 @@ public class ReportServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         DocumentType documentType = DocumentType.getDocumentType(request.getParameter("type"));
         ReportGenerator reportGenerator = new ReportGenerator();
-        byte[] report = reportGenerator.generateReport(DocumentType.getDocumentType("PDF"),
+        byte[] report = reportGenerator.generateReport(documentType,
                 "payment",
                 Arrays.asList(RenderPaymentDto.builder()
                         .amount("11")

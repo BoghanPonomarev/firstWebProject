@@ -1,11 +1,12 @@
 package ua.nure.ponomarev.web.servlets;
 
+import ua.nure.ponomarev.service.NotificationService;
 import ua.nure.ponomarev.web.exception.DBException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.exception.LogicException;
 import ua.nure.ponomarev.web.exception.MailException;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.notification.mail_notification.MailSender;
+import ua.nure.ponomarev.notification.mail_notification.MailNotificator;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -22,13 +23,13 @@ import java.io.IOException;
 @WebServlet(name = "MailConfirmServlet", urlPatterns = "/confirm_registration")
 public class MailConfirmServlet extends HttpServlet {
     private UserService userService;
-    private MailSender mailSender;
+    private NotificationService notificationService;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         userService = (UserService) config.getServletContext().getAttribute("user_service");
-        mailSender = (MailSender) config.getServletContext().getAttribute("mail_sender");
+        notificationService = (NotificationService) config.getServletContext().getAttribute("notificator");
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -38,8 +39,8 @@ public class MailConfirmServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String email = "";
         int id = Integer.parseInt(request.getParameter("id"));
-        if (mailSender.isValidId(id)) {
-            email = mailSender.removeId(id);
+        if (notificationService.isValidEmailId(id)) {
+            email = notificationService.removeEmailId(id);
             try {
                 if (userService.isExistEmail(email)) {
                     if (userService.activateEmail(email)) {

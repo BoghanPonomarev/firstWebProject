@@ -1,18 +1,23 @@
 $(document).ready(function() {
     $("#pin_code").keyup(function () {
-        if (document.getElementById("pin_code").value.length === 4) {
+        if (document.getElementById("pin_code").value.length > 4) {
             $.ajax
             ({
                 type: "post",//Метод передачи
-                url: 'http://localhost:8080/app/phone_confirm?pin_code=' + document.getElementById("pin_code").value,//Название сервлета
-                success: function (serverData)//Если запрос удачен
-                {
+                url: 'phone_confirm?pin_code=' + document.getElementById("pin_code").value
+                + '&phone_number='+document.getElementById("phone_number").value,//Название сервлета
+                success: function (data) {
+                    if (data[0]&&data[0].localeCompare("yes")) {
+                        window.location = "html/index.jsp";
+                       /* location.reload();*/
+                    }
+                   /*http://localhost:8080/app/
                     $("#auth-info").css({
                         "background-color": serverData.backgroundColor,
                         "height": "50px",
                         "color": "white"
                     });
-                    $("#auth-info").html(serverData.serverInfo);
+                    $("#auth-info").html(serverData.serverInfo);*/
                 },
                 error: function (e)//Если запрос не удачен
                 {

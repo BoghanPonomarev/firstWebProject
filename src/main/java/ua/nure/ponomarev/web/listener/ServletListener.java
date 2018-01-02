@@ -3,12 +3,16 @@ package ua.nure.ponomarev.web.listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.dao.impl.SqlUserDao;
+import ua.nure.ponomarev.notification.phone_notification.PhoneNotificator;
+import ua.nure.ponomarev.notification.phone_notification.PhoneNotificatorImpl;
+import ua.nure.ponomarev.service.NotificationService;
 import ua.nure.ponomarev.service.UserService;
+import ua.nure.ponomarev.service.impl.NotificationServiceImpl;
 import ua.nure.ponomarev.service.impl.UserServiceImpl;
 import ua.nure.ponomarev.transactions.Transaction;
 import ua.nure.ponomarev.web.form.FormMaker;
-import ua.nure.ponomarev.notification.mail_notification.MailSender;
-import ua.nure.ponomarev.notification.mail_notification.MailSenderImpl;
+import ua.nure.ponomarev.notification.mail_notification.MailNotificator;
+import ua.nure.ponomarev.notification.mail_notification.MailNotificatorImpl;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
 
 import javax.annotation.Resource;
@@ -28,7 +32,7 @@ public class ServletListener implements ServletContextListener {
     private DataSource dataSource;
     private Transaction transaction;
     private UserService userService;
-    private MailSender mailSender;
+    private NotificationService notificationService;
     private FormMaker formMaker;
     private RegistrationValidator registrationValidator;
 
@@ -43,7 +47,7 @@ public class ServletListener implements ServletContextListener {
         servletContext.setAttribute("data_source", dataSource);
         formMakerInitialized(servletContext);
         userServiceInitialized(servletContext);
-        mailSenderInitialized(servletContext);
+        notificatorInitialized(servletContext);
         registrationValidatorInitialized(servletContext);
     }
 
@@ -58,9 +62,10 @@ public class ServletListener implements ServletContextListener {
         servletContext.setAttribute("user_service", userService);
     }
 
-    private void mailSenderInitialized(ServletContext servletContext) {
-        mailSender = new MailSenderImpl();
-        servletContext.setAttribute("mail_sender", mailSender);
+    private void notificatorInitialized(ServletContext servletContext) {
+        MailNotificator mailNotificator = new MailNotificatorImpl();
+        PhoneNotificator phoneNotificator = new PhoneNotificatorImpl();
+        servletContext.setAttribute("notification_service", new NotificationServiceImpl(phoneNotificator,mailNotificator));
     }
 
     private void formMakerInitialized(ServletContext servletContext) {

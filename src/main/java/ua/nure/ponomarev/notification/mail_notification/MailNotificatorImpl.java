@@ -2,6 +2,8 @@ package ua.nure.ponomarev.notification.mail_notification;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.notification.Token;
+import ua.nure.ponomarev.notification.TokenSet;
 import ua.nure.ponomarev.web.exception.LogicException;
 import ua.nure.ponomarev.web.exception.MailException;
 
@@ -18,46 +20,46 @@ import  javax.mail.Transport;
 /**
  * @author Bogdan_Ponamarev.
  */
-public class MailSenderImpl implements MailSender {
-    private Logger logger = LogManager.getLogger(MailSenderImpl.class);
+public class MailNotificatorImpl implements MailNotificator {
+    private Logger logger = LogManager.getLogger(MailNotificatorImpl.class);
     private Set<Token> tokens;
-    private Properties mailProperties;
+    private Properties properties;
     private static final String END_LINK ="'>confirm registration</a>";
-    public MailSenderImpl()  {
-        tokens = new TokenSet(5);
-        mailProperties = new Properties();
+    public MailNotificatorImpl()  {
+        tokens = new TokenSet(10);
+        properties = new Properties();
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            InputStream input = classLoader.getResourceAsStream("Email.properties");
-            mailProperties.load(input);
+            InputStream input = classLoader.getResourceAsStream("Notification.properties");
+            properties.load(input);
         } catch (IOException e) {
-           logger.fatal("I could not get the settings for working with mail_notification",e);
+           logger.fatal("I could not get the settings for working with mail notification",e);
         }
     }
 
     @Override
     public void sendEmail(String recipientEmail) throws MailException {
         Properties props = System.getProperties();
-        if(!mailProperties.containsKey("mail.content")){
+        if(!properties.containsKey("mail.content")){
             logger.error("Could not send mail_notification because properties file not found");
             throw new MailException("Dear user no we can`t send massage to you!\nWe give our apologise...", LogicException.ExceptionType.SERVER_EXCEPTION,new FileNotFoundException());
         }
-        props.put("mail.smtp.port", mailProperties.getProperty("mail.smtp.port"));
-        props.put("mail.smtp.host", mailProperties.getProperty("mail.smtp.host"));
-        props.put("mail.smtp.auth", mailProperties.getProperty("mail.smtp.auth"));
-        props.put("mail.smtp.starttls.enable",  mailProperties.getProperty("mail.smtp.starttls.enable"));
+        props.put("mail.smtp.port", properties.getProperty("mail.smtp.port"));
+        props.put("mail.smtp.host", properties.getProperty("mail.smtp.host"));
+        props.put("mail.smtp.auth", properties.getProperty("mail.smtp.auth"));
+        props.put("mail.smtp.starttls.enable",  properties.getProperty("mail.smtp.starttls.enable"));
         Session session = Session.getInstance(props);
 
         MimeMessage msg = new MimeMessage(session);
         try {
-            msg.setFrom(new InternetAddress(mailProperties.getProperty("mail.login")));
+            msg.setFrom(new InternetAddress(properties.getProperty("mail.login")));
             msg.setRecipient(Message.RecipientType.TO, new InternetAddress(recipientEmail));
-            msg.setSubject( mailProperties.getProperty("mail.topic"));
+            msg.setSubject( properties.getProperty("mail.topic"));
 
             int id = makeId();
-            msg.setText( mailProperties.getProperty("mail.content")+id+END_LINK,mailProperties.getProperty("mail.mime.charset"),"html");
-            Transport.send(msg , mailProperties.getProperty("mail.login"),mailProperties.getProperty("mail.password"));
-            tokens.add(new Token(recipientEmail,System.currentTimeMillis()/60000,id));
+            msg.setText( properties.getProperty("mail.content")+id+END_LINK, properties.getProperty("mail.mime.charset"),"html");
+            Transport.send(msg , properties.getProperty("mail.login"), properties.getProperty("mail.password"));
+            tokens.add(new Token(recipientEmail,60,id));
         } catch (MessagingException e) {
          logger.error("Could not send mail_notification", e);
          throw new MailException("Dear user no we can`t send massage to you!\nWe give our apologise...", LogicException.ExceptionType.SERVER_EXCEPTION,e);
@@ -67,7 +69,7 @@ public class MailSenderImpl implements MailSender {
     @Override
     public boolean isValidId(int id) {
         for (Token tok : tokens) {
-            if (tok.getId() == id) {
+            if (tok.getData() == id) {
                 return true;
             }
         }
@@ -82,9 +84,9 @@ public class MailSenderImpl implements MailSender {
     @Override
     public String removeId(int id) {
         for (Token tok : tokens) {
-            if (tok.getId() == id) {
+            if (tok.getData() == id) {
                 tokens.remove(tok);
-                return tok.getEmail();
+                return tok.getIdentificationName();
             }
         }
         return null;
@@ -97,7 +99,7 @@ public class MailSenderImpl implements MailSender {
         do{
             id = (int)(Math.random()*Integer.MAX_VALUE/1.5);
             for (Token tok: tokens){
-                if(tok.getId()==id){
+                if(tok.getData()==id){
                     isExistId=true;
                 }
             }

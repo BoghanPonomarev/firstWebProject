@@ -53,7 +53,7 @@
         <label for="phone">
             <span>Phone number</span>
 
-            <input type="text" id="phone" name="phone" maxlength="20" required>
+            <input type="text" id="phone" name="phone_number" maxlength="20" required>
 
             <ul class="input-requirements">
                 <li>Phone must have correct format</li>

@@ -18,10 +18,10 @@ public class FormMaker extends AbstractFormMaker {
         RegistrationForm result= new RegistrationForm();
         result.setEmail(request.getParameter("email"));
         result.setLogin(request.getParameter("login"));
-        result.setPhoneNumber(request.getParameter("phone_notification"));
+        result.setPhoneNumber(request.getParameter("phone_number"));
         result.setFirstPassword(request.getParameter("password"));
         result.setSecondPassword(request.getParameter("password_repeat"));
+        logger.debug("Form was felt");
         return result;
-        //TODO
     }
 }

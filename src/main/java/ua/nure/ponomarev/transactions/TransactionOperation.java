@@ -8,5 +8,5 @@ import java.sql.Connection;
  * @author Bogdan_Ponamarev.
  */
 public interface TransactionOperation<T> {
-    T doWitTransaction(Connection connection) throws DBException;
+    T doWitTransaction() throws DBException;
 }

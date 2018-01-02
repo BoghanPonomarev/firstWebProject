@@ -12,15 +12,15 @@ import java.util.List;
 
 
 public interface UserDao {
-    int create(User user,Connection connection) throws DBException;
+    int create(User user) throws DBException;
 
-     User get(String login, Connection connection) throws DBException;
+     User get(String login) throws DBException;
 
-    boolean isExistEmail(String email,Connection connection) throws DBException;
+    boolean isExistEmail(String email) throws DBException; //Question how realize it
 
-    boolean isExistPhone(String phoneNumber,Connection connection) throws DBException;
+    boolean isExistPhone(String phoneNumber) throws DBException;
 
-    boolean activateEmail(String email,Connection connetion) throws DBException;
+    boolean activateEmail(String email) throws DBException;
 
-    List<User> getAll(Connection connection) throws DBException;
+    List<User> getAll() throws DBException;
 }

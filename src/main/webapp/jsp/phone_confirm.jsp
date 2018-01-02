@@ -12,8 +12,8 @@
 <body>
     <span>Pin code</span>
     <form class="auth-forms" method="post" action="${contextPath}/phone_confirm">
-        <%--action="${contextPath}/phone_confirm"--%>
-        <input type="text" id="pin_code" name="pin_code" maxlength="4" required >
+        Phone number: <input type="text" id="phone_number" name="phone_number" value="${requestScope.get('phone_number')}" readonly><br>
+        Pin code: <input type="text" id="pin_code" name="pin_code" maxlength="5" required >
         <input type="submit" value="submit">
     </form>
 </body>

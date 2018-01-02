@@ -2,7 +2,9 @@ package ua.nure.ponomarev.transactions;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.holder.SqlConnectionHolder;
 import ua.nure.ponomarev.web.exception.DBException;
+import ua.nure.ponomarev.web.exception.LogicException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -28,12 +30,13 @@ public class Transaction{
         Connection connection=null;
         try{
            connection = dataSource.getConnection();
+           SqlConnectionHolder.setConnection(connection);
            if(connection==null){
-            throw new SQLException(" It can`t getByLogin connection");
+            throw new DBException("It can`t getByLogin connection", LogicException.ExceptionType.SERVER_EXCEPTION,new SQLException());
            }
            connection.setAutoCommit(false);
            for(int i=0;i<transactionOperation.length;i++) {
-                result.add(transactionOperation[i].doWitTransaction(connection));
+                result.add(transactionOperation[i].doWitTransaction());
            }
            connection.commit();
         } catch (SQLException e) {
@@ -56,11 +59,12 @@ public class Transaction{
         Connection connection=null;
         try{
             connection = dataSource.getConnection();
+            SqlConnectionHolder.setConnection(connection);
             if(connection==null){
-                throw new SQLException(" It can`t get by login connection");
+                throw new DBException("It can`t getByLogin connection", LogicException.ExceptionType.SERVER_EXCEPTION,new SQLException());
             }
             connection.setAutoCommit(false);
-            result = transactionOperation.doWitTransaction(connection);
+            result = transactionOperation.doWitTransaction();
             connection.commit();
         } catch (SQLException e) {
             logger.error(e);

@@ -1,6 +1,7 @@
 package ua.nure.ponomarev.dao.impl;
 
 import ua.nure.ponomarev.dao.UserDao;
+import ua.nure.ponomarev.holder.SqlConnectionHolder;
 import ua.nure.ponomarev.web.exception.DBException;
 import ua.nure.ponomarev.entity.User;
 import org.apache.logging.log4j.LogManager;
@@ -29,16 +30,26 @@ public class SqlUserDao implements UserDao {
         this.dataSource = dataSource;
     }
 
+    private Connection getConnection() throws SQLException {
+
+        Connection connection =  SqlConnectionHolder.getConnection();
+        if(connection==null){
+            connection = dataSource.getConnection();
+        }
+        return connection;
+    }
+
     /**
      *
      * @return integer number that is an id of particular user , or -1 if result set was empty
      * @throws DBException
      */
     @Override
-    public int create(User user, Connection connection) throws DBException {
+    public int create(User user) throws DBException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet=null;
         try {
+            Connection connection = getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setString(2, user.getPassword());
@@ -77,10 +88,11 @@ public class SqlUserDao implements UserDao {
     }
 
     @Override
-    public User get(String login, Connection connection) throws DBException {
+    public User get(String login) throws DBException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet=null;
         try {
+            Connection connection = getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_SELECT_BY_LOGIN);
             preparedStatement.setString(1, login);
            resultSet = preparedStatement.executeQuery();
@@ -94,10 +106,11 @@ public class SqlUserDao implements UserDao {
         }
     }
     @Override
-    public boolean isExistEmail(String email,  Connection connection) throws DBException {
+    public boolean isExistEmail(String email) throws DBException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
         try {
+            Connection connection = getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_IS_EXIST_EMAIL);
             preparedStatement.setString(1, email);
             resultSet = preparedStatement.executeQuery();
@@ -113,10 +126,11 @@ public class SqlUserDao implements UserDao {
         }
     }
     @Override
-    public boolean isExistPhone(String phoneNumber,  Connection connection) throws DBException {
+    public boolean isExistPhone(String phoneNumber) throws DBException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
         try {
+            Connection connection = getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_IS_EXIST_PHONE_NUMBER);
             preparedStatement.setString(1, phoneNumber);
             resultSet = preparedStatement.executeQuery();
@@ -133,9 +147,10 @@ public class SqlUserDao implements UserDao {
     }
 
     @Override
-    public boolean activateEmail(String email,Connection connection) throws DBException {
+    public boolean activateEmail(String email) throws DBException {
         PreparedStatement preparedStatement= null;
         try {
+            Connection connection = getConnection();
             preparedStatement=connection.prepareStatement(SQL_QUERY_ACTIVATE_EMAIL);
             preparedStatement.setString(1,email);
             return preparedStatement.executeUpdate()!=0;
@@ -149,11 +164,12 @@ public class SqlUserDao implements UserDao {
     }
 
     @Override
-    public List<User> getAll(Connection connection) throws DBException {
+    public List<User> getAll() throws DBException {
         List<User> list = new ArrayList<>();
         ResultSet resultSet = null;
         PreparedStatement preparedStatement=null;
         try {
+            Connection connection = getConnection();
             preparedStatement=connection.prepareStatement(SQL_QUERY_GET_ALL);
             resultSet = preparedStatement.executeQuery();
             User user = null;
@@ -191,5 +207,4 @@ public class SqlUserDao implements UserDao {
             }
         }
     }
-
 }

@@ -4,12 +4,14 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.service.NotificationService;
 import ua.nure.ponomarev.web.exception.DBException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.form.AbstractFormMaker;
 import ua.nure.ponomarev.web.form.RegistrationForm;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.notification.mail_notification.MailSender;
+import ua.nure.ponomarev.notification.mail_notification.MailNotificator;
+import ua.nure.ponomarev.web.transformer.UserTransformer;
 import ua.nure.ponomarev.web.validator.Validator;
 
 import javax.servlet.RequestDispatcher;
@@ -30,15 +32,14 @@ public class RegistrationServlet extends HttpServlet {
     private AbstractFormMaker abstractFormMaker;
     private Validator<RegistrationForm> formValidator;
     private UserService userService;
-    private MailSender mailSender;
-
+    private NotificationService notificationService;
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         formValidator = (Validator<RegistrationForm>) config.getServletContext().getAttribute("registration_validator");
         abstractFormMaker = (AbstractFormMaker) config.getServletContext().getAttribute("form_maker");
         userService = (UserService) config.getServletContext().getAttribute("user_service");
-        mailSender = (MailSender) config.getServletContext().getAttribute("mail_sender");
+        notificationService = (NotificationService) config.getServletContext().getAttribute("notification_service");
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -55,11 +56,24 @@ public class RegistrationServlet extends HttpServlet {
             ExceptionHandler.handleException(e,request,response);
         }
         if (!errors.isEmpty()) {
+            logger.info("User made some registration mistakes");
             request.setAttribute("errors", errors);
             RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/registration.jsp");
             requestDispatcher.forward(request, response);
         }
-
+        else{
+            logger.info("User entered correct data");
+            request.setAttribute("user", UserTransformer.transform(registrationForm));
+            request.setAttribute("phone_number",request.getParameter("phone_number"));
+            new Thread(){
+                @Override
+                       public void run(){
+                notificationService.sendPinCode(request.getParameter("phone_number"));
+            }
+            }.start();
+            RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/phone_confirm.jsp");
+            requestDispatcher.forward(request, response);
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

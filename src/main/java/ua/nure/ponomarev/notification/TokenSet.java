@@ -1,11 +1,10 @@
-package ua.nure.ponomarev.notification.mail_notification;
+package ua.nure.ponomarev.notification;
 
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.*;
-import ua.nure.ponomarev.notification.mail_notification.Token;
 /**
  * @author Bogdan_Ponamarev.
  */
@@ -18,20 +17,17 @@ public class TokenSet implements Set<Token> {
         th.setDaemon(true);
         return th;
     });
-    public TokenSet(int defaultMinuetsTimeout){
+    public TokenSet(int defaultMinutesDelay){
         tokens = new CopyOnWriteArraySet<>();
-        scheduler.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                long currentMinets = System.currentTimeMillis()/60000;
+        scheduler.scheduleAtFixedRate(() -> {
+                long currentMinutes = System.currentTimeMillis()/60000;
                 for (Token t : tokens) {
-                    if (!t.isAlive(currentMinets)) {
+                    if (!t.isAlive(currentMinutes)) {
                         tokens.remove(t);
                     }
                 }
-            }
-        }, 60, defaultMinuetsTimeout, TimeUnit.MINUTES);
+
+        }, 2, defaultMinutesDelay, TimeUnit.MINUTES);
     }
     @Override
     public int size() {
