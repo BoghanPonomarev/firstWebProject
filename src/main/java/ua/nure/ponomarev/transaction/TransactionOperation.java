@@ -1,8 +1,6 @@
-package ua.nure.ponomarev.transactions;
+package ua.nure.ponomarev.transaction;
 
-import ua.nure.ponomarev.web.exception.DBException;
-
-import java.sql.Connection;
+import ua.nure.ponomarev.exception.DBException;
 
 /**
  * @author Bogdan_Ponamarev.

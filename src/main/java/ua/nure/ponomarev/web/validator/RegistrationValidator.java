@@ -18,56 +18,56 @@ public class RegistrationValidator implements Validator<RegistrationForm> {
     private Pattern phoneNumberPattern = Pattern.compile("\\d{10}|(?:\\d{3}-){2}\\d{4}|\\(\\d{3}\\)\\d{3}-?\\d{4}");
 
     public Map<String, String> validate(RegistrationForm form) {
-        Map<String, String> result = new HashMap<>();
-        emailValidation(result,form);
-        phoneNumberValidation(result,form);
-        loginValidator(result,form);
-        passwordValidator(result,form);
-        return result;
+        Map<String, String> errors = new HashMap<>();
+        emailValidation(errors,form);
+        phoneNumberValidation(errors,form);
+        loginValidator(errors,form);
+        passwordValidator(errors,form);
+        return errors;
     }
 
-    private void emailValidation(Map<String,String> result, RegistrationForm form) {
+    private void emailValidation(Map<String,String> errors, RegistrationForm form) {
         Matcher matcher = emailPattern.matcher(form.getEmail());
         if (!matcher.matches()) {
-            result.put("emailFormat", "Email is not correct");
+            errors.put("emailFormat", "Email is not correct");
         }
     }
 
-    private void phoneNumberValidation(Map<String,String> result, RegistrationForm form) {
+    private void phoneNumberValidation(Map<String,String> errors, RegistrationForm form) {
         Matcher matcher = phoneNumberPattern.matcher(form.getPhoneNumber());
         if (!matcher.matches()) {
-            result.put("phoneNumberFormat", "Phone number is not correct");
+            errors.put("phoneNumberFormat", "Phone number is not correct");
         }
     }
 
-    private void loginValidator(Map<String,String> result, RegistrationForm form) {
+    private void loginValidator(Map<String,String> errors, RegistrationForm form) {
         Matcher matcher = loginPasswordPattern.matcher(form.getLogin());
         if (form.getLogin().length() > 15) {
-            result.put("loginLongSize", "Login can`t be more then 15 characters");
+            errors.put("loginLongSize", "Login can`t be more then 15 characters");
         }
         if (form.getLogin().length() < 5) {
-            result.put("loginShortSize", "Login can`t be less then 5 characters");
+            errors.put("loginShortSize", "Login can`t be less then 5 characters");
         }
         if (!matcher.matches()){//Need finding only one time
-            result.put("loginFormat", "Login can only contain letters and digits");
+            errors.put("loginFormat", "Login can only contain letters and digits");
         }
     }
-    private void passwordValidator(Map<String,String> result,RegistrationForm form){
+    private void passwordValidator(Map<String,String> errors,RegistrationForm form){
         Matcher firstPasMatcher=loginPasswordPattern.matcher(form.getFirstPassword());
         Matcher secondPasMatcher=loginPasswordPattern.matcher(form.getSecondPassword());
         if(!form.getFirstPassword().equals(form.getSecondPassword())){
-            result.put("passwordEquals","Passwords are`nt equals");
+            errors.put("passwordEquals","Passwords are`nt equals");
         }
         if(form.getFirstPassword().length()>15
                 ||form.getSecondPassword().length()>15){
-            result.put("passwordLongSize", "Password can`t be more then 15 characters");
+            errors.put("passwordLongSize", "Password can`t be more then 15 characters");
         }
         if(form.getFirstPassword().length()<5
                 ||form.getSecondPassword().length()<5){
-            result.put("passwordShortSize", "Password can`t be less then 5 characters");
+            errors.put("passwordShortSize", "Password can`t be less then 5 characters");
         }
         if(!firstPasMatcher.matches()||!secondPasMatcher.matches()){
-            result.put("passwordFormat","Password can only contain letters and digits");
+            errors.put("passwordFormat","Password can only contain letters and digits");
         }
     }
 }

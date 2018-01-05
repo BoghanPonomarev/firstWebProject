@@ -1,7 +1,7 @@
 package ua.nure.ponomarev.web.handler;
 
-import ua.nure.ponomarev.web.exception.LogicException;
-import ua.nure.ponomarev.web.exception.MailException;
+import ua.nure.ponomarev.exception.LogicException;
+import ua.nure.ponomarev.exception.MailSenderException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -19,10 +19,10 @@ public class ExceptionHandler {
 
     public static void handleException(LogicException ex,HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher requestDispatcher = null;
-        if(ex.getType().equals(MailException.ExceptionType.SERVER_EXCEPTION)){
+        if(ex.getType().equals(MailSenderException.ExceptionType.SERVER_EXCEPTION)){
             requestDispatcher = request.getRequestDispatcher(serverExceptionPage);
         }
-        else if (ex.getType().equals(MailException.ExceptionType.USER_EXCEPTION)){
+        else if (ex.getType().equals(MailSenderException.ExceptionType.USER_EXCEPTION)){
             requestDispatcher = request.getRequestDispatcher(userExceptionPage);
         }
         if(requestDispatcher!=null){

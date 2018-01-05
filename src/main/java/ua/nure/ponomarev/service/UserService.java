@@ -1,6 +1,6 @@
 package ua.nure.ponomarev.service;
 
-import ua.nure.ponomarev.web.exception.DBException;
+import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.entity.User;
 
 /**
@@ -10,6 +10,8 @@ public interface UserService {
     boolean isExistEmail(String email) throws DBException;
 
     boolean isExistPhoneNumber(String phoneNumber) throws DBException;
+
+    boolean isCanEntry(String phoneNumber,String password) throws DBException;
 
     int addUser(User user) throws DBException;
 

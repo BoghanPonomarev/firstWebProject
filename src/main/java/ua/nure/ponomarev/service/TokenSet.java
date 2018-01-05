@@ -1,4 +1,4 @@
-package ua.nure.ponomarev.notification;
+package ua.nure.ponomarev.service;
 
 
 import java.util.Collection;

@@ -5,7 +5,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.nure.ponomarev.exeption.DocumentGenerationException;
+import ua.nure.ponomarev.exception.DocumentGenerationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -4,8 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import ua.nure.ponomarev.entity.User;
+import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.service.NotificationService;
 import ua.nure.ponomarev.service.UserService;
+import ua.nure.ponomarev.web.handler.ExceptionHandler;
+import ua.nure.ponomarev.web.transformer.UserTransformer;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -38,17 +42,25 @@ public class PhoneConfirmServlet extends HttpServlet {
         response.setContentType("text/plain");
         response.setCharacterEncoding("UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            //JSONObject jsonEnt = new JSONObject();
             if (request.getParameter("pin_code").chars().allMatch(Character::isDigit)
                     && notificationService.isValidPhonePinCode(Integer.parseInt(request.getParameter("pin_code"))
-                    ,request.getParameter("phone_number") )) {
+                    , request.getParameter("phone_number"))) {
                 out.print("yes");
-               out.close();
-                logger.info("Correct ajax data");
+                User user = (User)request.getSession().getAttribute("user");
+                if(user!=null){
+                    try {
+                        userService.addUser(user);
+                        logger.info("Correct ajax data");
+                    } catch (DBException e) {
+                        ExceptionHandler.handleException(e,request,response);
+                    }
+                }
+                logger.error("There is no user in session");
             } else {
+                out.print("no");
                 logger.info("Incorrect ajax data");
             }
-
+            out.close();
         }
     }
 

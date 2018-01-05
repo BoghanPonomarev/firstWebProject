@@ -8,16 +8,16 @@ $(document).ready(function() {
                 + '&phone_number='+document.getElementById("phone_number").value,//Название сервлета
                 success: function (data) {
                     if (data[0]&&data[0].localeCompare("yes")) {
-                        window.location = "html/index.jsp";
-                       /* location.reload();*/
+                        window.location = "jsp/authorization.jsp";
                     }
-                   /*http://localhost:8080/app/
+                   else{
                     $("#auth-info").css({
-                        "background-color": serverData.backgroundColor,
+                        "background-color": data.backgroundColor,
                         "height": "50px",
                         "color": "white"
                     });
-                    $("#auth-info").html(serverData.serverInfo);*/
+                    $("#auth-info").html(serverData.serverInfo);
+                }
                 },
                 error: function (e)//Если запрос не удачен
                 {

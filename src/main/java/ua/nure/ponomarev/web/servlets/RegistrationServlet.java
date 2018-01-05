@@ -4,14 +4,15 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.exception.SMSSenderException;
 import ua.nure.ponomarev.service.NotificationService;
-import ua.nure.ponomarev.web.exception.DBException;
+import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.service.UserService;
-import ua.nure.ponomarev.web.form.AbstractFormMaker;
+import ua.nure.ponomarev.web.form.FormMaker;
 import ua.nure.ponomarev.web.form.RegistrationForm;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.notification.mail_notification.MailNotificator;
 import ua.nure.ponomarev.web.transformer.UserTransformer;
+import ua.nure.ponomarev.web.validator.RegistrationValidator;
 import ua.nure.ponomarev.web.validator.Validator;
 
 import javax.servlet.RequestDispatcher;
@@ -29,15 +30,15 @@ import java.io.IOException;
 @WebServlet(name = "RegistrationServlet", urlPatterns = "/registration")
 public class RegistrationServlet extends HttpServlet {
     private static final Logger logger = LogManager.getLogger(RegistrationServlet.class);
-    private AbstractFormMaker abstractFormMaker;
-    private Validator<RegistrationForm> formValidator;
+    private FormMaker abstractFormMaker;
+    private RegistrationValidator formValidator;
     private UserService userService;
     private NotificationService notificationService;
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        formValidator = (Validator<RegistrationForm>) config.getServletContext().getAttribute("registration_validator");
-        abstractFormMaker = (AbstractFormMaker) config.getServletContext().getAttribute("form_maker");
+        formValidator = (RegistrationValidator) config.getServletContext().getAttribute("registration_validator");
+        abstractFormMaker = (FormMaker) config.getServletContext().getAttribute("form_maker");
         userService = (UserService) config.getServletContext().getAttribute("user_service");
         notificationService = (NotificationService) config.getServletContext().getAttribute("notification_service");
     }
@@ -63,14 +64,24 @@ public class RegistrationServlet extends HttpServlet {
         }
         else{
             logger.info("User entered correct data");
-            request.setAttribute("user", UserTransformer.transform(registrationForm));
+            request.getSession().setAttribute("user",UserTransformer.transform(registrationForm));
+            request.setAttribute("asd","asd");
             request.setAttribute("phone_number",request.getParameter("phone_number"));
             new Thread(){
                 @Override
                        public void run(){
-                notificationService.sendPinCode(request.getParameter("phone_number"));
-            }
+                    try {
+                        notificationService.sendPinCode(request.getParameter("phone_number"));
+                    } catch (SMSSenderException e) {
+                        try {
+                            ExceptionHandler.handleException(e, request, response);
+                        } catch (Exception e1) {
+                           logger.error("Phone sender ex was not handled "+e1);
+                        }
+                    }
+                }
             }.start();
+
             RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/phone_confirm.jsp");
             requestDispatcher.forward(request, response);
         }

@@ -1,12 +1,11 @@
 package ua.nure.ponomarev.web.servlets;
 
 import ua.nure.ponomarev.service.NotificationService;
-import ua.nure.ponomarev.web.exception.DBException;
+import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.service.UserService;
-import ua.nure.ponomarev.web.exception.LogicException;
-import ua.nure.ponomarev.web.exception.MailException;
+import ua.nure.ponomarev.exception.LogicException;
+import ua.nure.ponomarev.exception.MailSenderException;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.notification.mail_notification.MailNotificator;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -47,9 +46,9 @@ public class MailConfirmServlet extends HttpServlet {
                         RequestDispatcher requestDispatcher = request.getRequestDispatcher("");//--CONGRATULATION JSP
                         requestDispatcher.forward(request, response);
                     } else {
-                    ExceptionHandler.handleException(new MailException("Email has already been activated", LogicException.ExceptionType.USER_EXCEPTION),request,response);
+                    ExceptionHandler.handleException(new MailSenderException("Email has already been activated", LogicException.ExceptionType.USER_EXCEPTION),request,response);
                     }
-                    ExceptionHandler.handleException(new MailException("Email was deleted or changed", LogicException.ExceptionType.USER_EXCEPTION),request,response);
+                    ExceptionHandler.handleException(new MailSenderException("Email was deleted or changed", LogicException.ExceptionType.USER_EXCEPTION),request,response);
                 }
             } catch (DBException e) {
                 ExceptionHandler.handleException(e,request,response);

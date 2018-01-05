@@ -3,16 +3,17 @@ package ua.nure.ponomarev.web.listener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.dao.impl.SqlUserDao;
-import ua.nure.ponomarev.notification.phone_notification.PhoneNotificator;
-import ua.nure.ponomarev.notification.phone_notification.PhoneNotificatorImpl;
-import ua.nure.ponomarev.service.NotificationService;
+import ua.nure.ponomarev.encoder.impl.AESEncoder;
+import ua.nure.ponomarev.sender.SmsSender;
+import ua.nure.ponomarev.sender.impl.SmsSenderImpl;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.service.impl.NotificationServiceImpl;
 import ua.nure.ponomarev.service.impl.UserServiceImpl;
-import ua.nure.ponomarev.transactions.Transaction;
-import ua.nure.ponomarev.web.form.FormMaker;
-import ua.nure.ponomarev.notification.mail_notification.MailNotificator;
-import ua.nure.ponomarev.notification.mail_notification.MailNotificatorImpl;
+import ua.nure.ponomarev.transaction.TransactionManager;
+import ua.nure.ponomarev.web.form.FormMakerImpl;
+import ua.nure.ponomarev.sender.EmailSender;
+import ua.nure.ponomarev.sender.impl.EmailSenderImpl;
+import ua.nure.ponomarev.web.validator.AuthorizationValidator;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
 
 import javax.annotation.Resource;
@@ -30,11 +31,7 @@ public class ServletListener implements ServletContextListener {
     private Logger logger = LogManager.getLogger(ServletListener.class);
     @Resource(name = "jdbc/data_source")
     private DataSource dataSource;
-    private Transaction transaction;
-    private UserService userService;
-    private NotificationService notificationService;
-    private FormMaker formMaker;
-    private RegistrationValidator registrationValidator;
+
 
     public ServletListener() {
         logger.info("Application was started");
@@ -49,6 +46,7 @@ public class ServletListener implements ServletContextListener {
         userServiceInitialized(servletContext);
         notificatorInitialized(servletContext);
         registrationValidatorInitialized(servletContext);
+        encoderInitialized(servletContext);
     }
 
     @Override
@@ -57,24 +55,30 @@ public class ServletListener implements ServletContextListener {
     }
 
     private void userServiceInitialized(ServletContext servletContext) {
-        transaction = new Transaction(dataSource);
-        userService = new UserServiceImpl(transaction, new SqlUserDao(dataSource));
+        TransactionManager transactionManager = new TransactionManager(dataSource);
+        UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource));
         servletContext.setAttribute("user_service", userService);
     }
 
     private void notificatorInitialized(ServletContext servletContext) {
-        MailNotificator mailNotificator = new MailNotificatorImpl();
-        PhoneNotificator phoneNotificator = new PhoneNotificatorImpl();
-        servletContext.setAttribute("notification_service", new NotificationServiceImpl(phoneNotificator,mailNotificator));
+        EmailSender emailSender = new EmailSenderImpl();
+        SmsSender smsSender = new SmsSenderImpl();
+        servletContext.setAttribute("notification_service", new NotificationServiceImpl(smsSender,emailSender));
     }
 
     private void formMakerInitialized(ServletContext servletContext) {
-        formMaker = new FormMaker();
-        servletContext.setAttribute("form_maker", formMaker);
+        servletContext.setAttribute("form_maker", new FormMakerImpl());
     }
 
     private void registrationValidatorInitialized(ServletContext servletContext) {
-        registrationValidator = new RegistrationValidator();
-        servletContext.setAttribute("registration_validator", registrationValidator);
+        servletContext.setAttribute("registration_validator", new RegistrationValidator());
+        servletContext.setAttribute("authorization_validator", new AuthorizationValidator());
+    }
+    private void encoderInitialized(ServletContext servletContext){
+        try {
+            servletContext.setAttribute("encoder",new AESEncoder());
+        } catch (Exception e) {
+            logger.fatal("Encoder does not initialized " + e);
+        }
     }
 }

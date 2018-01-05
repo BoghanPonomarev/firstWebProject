@@ -12,7 +12,7 @@
 <c:set var="contextPath" value="${pageContext.request.contextPath}"/>
 <head>
     <meta charset="utf-8">
-    <title>Realtime Form Validation</title>
+    <title>Registration</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
