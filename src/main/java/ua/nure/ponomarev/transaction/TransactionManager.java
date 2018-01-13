@@ -33,7 +33,7 @@ public class TransactionManager {
                 throw new DBException("It can`t get connection", LogicException.ExceptionType.SERVER_EXCEPTION,new SQLException());
             }
             connection.setAutoCommit(false);
-            result = transactionOperation.doWitTransaction();
+            result = transactionOperation.execute();
             connection.commit();
         } catch (SQLException e) {
             logger.error(e);
@@ -44,6 +44,24 @@ public class TransactionManager {
                     logger.error(e1);
                 }
             }
+        }
+        finally {
+            close(connection);
+        }
+        return result;
+    }
+    public <T> T doWithoutTransaction(TransactionOperation<T> transactionOperation) throws DBException{
+        T result=null;
+        Connection connection=null;
+        try{
+            connection = dataSource.getConnection();
+            SqlConnectionHolder.setConnection(connection);
+            if(connection==null){
+                throw new DBException("It can`t get connection", LogicException.ExceptionType.SERVER_EXCEPTION,new SQLException());
+            }
+            result = transactionOperation.execute();
+        } catch (SQLException e) {
+            logger.error(e);
         }
         finally {
             close(connection);

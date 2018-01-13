@@ -2,6 +2,7 @@ package ua.nure.ponomarev.dao.impl;
 
 import ua.nure.ponomarev.criteria.UserCriteria;
 import ua.nure.ponomarev.dao.UserDao;
+import ua.nure.ponomarev.exception.LogicException;
 import ua.nure.ponomarev.holder.SqlConnectionHolder;
 import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.entity.User;
@@ -25,19 +26,13 @@ public class SqlUserDao implements UserDao {
     private static final String SQL_QUERY_GET_ALL = "SELECT * FROM webproject.users";
     private static final String SQL_QUERY_ACTIVATE_EMAIL = "UPDATE webproject.users SET is_activated_email=false WHERE email = ?";
     private DataSource dataSource;
+    private SqlDaoConnectionManager connectionManager;
 
     public SqlUserDao(DataSource dataSource) {
         this.dataSource = dataSource;
+        connectionManager = new SqlDaoConnectionManager(dataSource);
     }
 
-    private Connection getConnection() throws SQLException {
-
-        Connection connection = SqlConnectionHolder.getConnection();
-        if (connection == null) {
-            connection = dataSource.getConnection();
-        }
-        return connection;
-    }
 
     /**
      * @return integer number that is an id of particular user , or -1 if result set was empty
@@ -48,7 +43,7 @@ public class SqlUserDao implements UserDao {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            Connection connection = getConnection();
+            Connection connection = connectionManager.getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, user.getLogin());
             preparedStatement.setString(2, user.getPassword());
@@ -61,10 +56,10 @@ public class SqlUserDao implements UserDao {
             }
         } catch (SQLException ex) {
             logger.error("Could not create user", ex);
-            throw new DBException(ex);
+            throw new DBException("Could not create user",DBException.ExceptionType.SERVER_EXCEPTION,ex);
         } finally {
-            closeResultSet(resultSet);
-            closePrepareStatement(preparedStatement);
+            connectionManager.closeResultSet(resultSet);
+            connectionManager.closePrepareStatement(preparedStatement);
         }
         return -1;
     }
@@ -74,6 +69,7 @@ public class SqlUserDao implements UserDao {
         try {
             if (resultSet.next()) {
                 user = new User();
+                user.setId(resultSet.getInt(1));
                 user.setLogin(resultSet.getString(2));
                 user.setPassword(resultSet.getString(3));
                 user.setPhoneNumber(resultSet.getString(4));
@@ -82,7 +78,7 @@ public class SqlUserDao implements UserDao {
             }
         } catch (SQLException ex) {
             logger.error("Something wrong with data filling", ex);
-            throw new DBException(ex);
+            throw new DBException("Something wrong with data filling",DBException.ExceptionType.SERVER_EXCEPTION,ex);
         }
         return user;
     }
@@ -92,16 +88,16 @@ public class SqlUserDao implements UserDao {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            Connection connection = getConnection();
+            Connection connection = connectionManager.getConnection();
             preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria));
             resultSet = preparedStatement.executeQuery();
             return fillUser(resultSet);
         } catch (SQLException ex) {
             logger.error("Could not get user", ex);
-            throw new DBException(ex);
+            throw new DBException("Could not get user",DBException.ExceptionType.SERVER_EXCEPTION,ex);
         } finally {
-            closeResultSet(resultSet);
-            closePrepareStatement(preparedStatement);
+            connectionManager.closeResultSet(resultSet);
+            connectionManager.closePrepareStatement(preparedStatement);
         }
     }
 
@@ -125,15 +121,15 @@ public class SqlUserDao implements UserDao {
     public boolean activateEmail(String email) throws DBException {
         PreparedStatement preparedStatement = null;
         try {
-            Connection connection = getConnection();
+            Connection connection = connectionManager.getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_ACTIVATE_EMAIL);
             preparedStatement.setString(1, email);
             return preparedStatement.executeUpdate() != 0;
         } catch (SQLException e) {
             logger.error("Email was`nt activated", e);
-            throw new DBException(e);
+            throw new DBException("Email was`nt activated",DBException.ExceptionType.SERVER_EXCEPTION,e);
         } finally {
-            closePrepareStatement(preparedStatement);
+            connectionManager.closePrepareStatement(preparedStatement);
         }
     }
 
@@ -143,41 +139,22 @@ public class SqlUserDao implements UserDao {
         ResultSet resultSet = null;
         PreparedStatement preparedStatement = null;
         try {
-            Connection connection = getConnection();
+            Connection connection = connectionManager.getConnection();
             preparedStatement = connection.prepareStatement(SQL_QUERY_GET_ALL);
             resultSet = preparedStatement.executeQuery();
-            User user = null;
+            User user;
             while ((user = fillUser(resultSet)) != null) {
                 list.add(user);
             }
         } catch (SQLException ex) {
             logger.error("Could not get users", ex);
-            throw new DBException(ex);
+            throw new DBException("Could not get users",DBException.ExceptionType.SERVER_EXCEPTION,ex);
         } finally {
-            closeResultSet(resultSet);
-            closePrepareStatement(preparedStatement);
+            connectionManager.closeResultSet(resultSet);
+            connectionManager.closePrepareStatement(preparedStatement);
         }
         return list;
     }
 
-    private void closeResultSet(ResultSet resultSet) throws DBException {
-        try {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-        } catch (SQLException e) {
-            logger.error("Result set has`nt been closed");
-            throw new DBException(e);
-        }
-    }
 
-    private void closePrepareStatement(PreparedStatement preparedStatement) {
-        if (preparedStatement != null) {
-            try {
-                preparedStatement.close();
-            } catch (SQLException e) {
-                logger.error("PreparedStatement was not closed", e);
-            }
-        }
-    }
 }

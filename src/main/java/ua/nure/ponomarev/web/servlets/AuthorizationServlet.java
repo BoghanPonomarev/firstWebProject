@@ -4,6 +4,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.encoder.Encoder;
+import ua.nure.ponomarev.entity.User;
 import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.form.AuthorizationForm;
@@ -29,14 +30,12 @@ public class AuthorizationServlet extends HttpServlet {
     private UserService userService;
     private AuthorizationValidator authorizationValidator;
     private FormMaker formMaker;
-    private Encoder encoder;
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         userService = (UserService) config.getServletContext().getAttribute("user_service");
         authorizationValidator = (AuthorizationValidator) config.getServletContext().getAttribute("authorization_validator");
         formMaker = (FormMaker) config.getServletContext().getAttribute("form_maker");
-        encoder = (Encoder) config.getServletContext().getAttribute("encoder");
     }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
       AuthorizationForm authorizationForm= formMaker.createAuthorizationForm(request);
@@ -56,9 +55,14 @@ public class AuthorizationServlet extends HttpServlet {
           RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/jsp/authorization.jsp");
           requestDispatcher.forward(request, response);
       }
-      request.getSession().setAttribute("authorization",encoder.encrypt(phoneNumber+" "+password));
-        RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/html/index.jsp");
-        requestDispatcher.forward(request, response);
+        try {
+            User user = userService.getUser(phoneNumber,password);
+            request.getSession().setAttribute("authorization",user.getId());
+            RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher("/html/index.jsp");
+            requestDispatcher.forward(request, response);
+        } catch (DBException e) {
+            ExceptionHandler.handleException(e,request,response);
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

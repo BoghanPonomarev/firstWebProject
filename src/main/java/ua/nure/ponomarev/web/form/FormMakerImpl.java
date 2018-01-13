@@ -1,10 +1,9 @@
 package ua.nure.ponomarev.web.form;
-
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 
 /**
  * @author Bogdan_Ponamarev.
@@ -29,6 +28,16 @@ public class FormMakerImpl implements FormMaker {
         result.setPassword(request.getParameter("password"));
         result.setPhoneNumber(request.getParameter("phone_number"));
         return result;
+    }
+
+    @Override
+    public AccountForm createAccountForm(HttpServletRequest request) {
+        AccountForm accountForm= new AccountForm();
+        accountForm.setAmount(request.getParameter("amount"));
+        accountForm.setCardNumber(request.getParameter("card_number"));
+        accountForm.setCVV(request.getParameter("CVV"));
+        accountForm.setValidTrue(request.getParameter("year")+"-"+request.getParameter("month"));
+        return accountForm;
     }
 
 }

@@ -2,17 +2,20 @@ package ua.nure.ponomarev.web.listener;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.dao.impl.SqlAccountDao;
 import ua.nure.ponomarev.dao.impl.SqlUserDao;
 import ua.nure.ponomarev.encoder.impl.AESEncoder;
 import ua.nure.ponomarev.sender.SmsSender;
 import ua.nure.ponomarev.sender.impl.SmsSenderImpl;
 import ua.nure.ponomarev.service.UserService;
+import ua.nure.ponomarev.service.impl.AccountServiceImpl;
 import ua.nure.ponomarev.service.impl.NotificationServiceImpl;
 import ua.nure.ponomarev.service.impl.UserServiceImpl;
 import ua.nure.ponomarev.transaction.TransactionManager;
 import ua.nure.ponomarev.web.form.FormMakerImpl;
 import ua.nure.ponomarev.sender.EmailSender;
 import ua.nure.ponomarev.sender.impl.EmailSenderImpl;
+import ua.nure.ponomarev.web.validator.AccountValidator;
 import ua.nure.ponomarev.web.validator.AuthorizationValidator;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
 
@@ -31,7 +34,7 @@ public class ServletListener implements ServletContextListener {
     private Logger logger = LogManager.getLogger(ServletListener.class);
     @Resource(name = "jdbc/data_source")
     private DataSource dataSource;
-
+    private TransactionManager transactionManager;
 
     public ServletListener() {
         logger.info("Application was started");
@@ -44,9 +47,15 @@ public class ServletListener implements ServletContextListener {
         servletContext.setAttribute("data_source", dataSource);
         formMakerInitialized(servletContext);
         userServiceInitialized(servletContext);
-        notificatorInitialized(servletContext);
+        notificationServiceInitialized(servletContext);
+        accountServiceInitialized(servletContext);
         registrationValidatorInitialized(servletContext);
         encoderInitialized(servletContext);
+    }
+
+    private void accountServiceInitialized(ServletContext servletContext) {
+        servletContext.setAttribute("account_service", new AccountServiceImpl(new SqlAccountDao(dataSource)
+                , transactionManager));
     }
 
     @Override
@@ -55,15 +64,15 @@ public class ServletListener implements ServletContextListener {
     }
 
     private void userServiceInitialized(ServletContext servletContext) {
-        TransactionManager transactionManager = new TransactionManager(dataSource);
+        transactionManager = new TransactionManager(dataSource);
         UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource));
         servletContext.setAttribute("user_service", userService);
     }
 
-    private void notificatorInitialized(ServletContext servletContext) {
+    private void notificationServiceInitialized(ServletContext servletContext) {
         EmailSender emailSender = new EmailSenderImpl();
         SmsSender smsSender = new SmsSenderImpl();
-        servletContext.setAttribute("notification_service", new NotificationServiceImpl(smsSender,emailSender));
+        servletContext.setAttribute("notification_service", new NotificationServiceImpl(smsSender, emailSender));
     }
 
     private void formMakerInitialized(ServletContext servletContext) {
@@ -73,10 +82,12 @@ public class ServletListener implements ServletContextListener {
     private void registrationValidatorInitialized(ServletContext servletContext) {
         servletContext.setAttribute("registration_validator", new RegistrationValidator());
         servletContext.setAttribute("authorization_validator", new AuthorizationValidator());
+        servletContext.setAttribute("account_validator", new AccountValidator());
     }
-    private void encoderInitialized(ServletContext servletContext){
+
+    private void encoderInitialized(ServletContext servletContext) {
         try {
-            servletContext.setAttribute("encoder",new AESEncoder());
+            servletContext.setAttribute("encoder", new AESEncoder());
         } catch (Exception e) {
             logger.fatal("Encoder does not initialized " + e);
         }

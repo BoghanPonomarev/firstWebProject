@@ -36,20 +36,17 @@ public class MailConfirmServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String email = "";
+        String email;
         int id = Integer.parseInt(request.getParameter("id"));
         if (notificationService.isValidEmailId(id)) {
             email = notificationService.removeEmailId(id);
             try {
-                if (userService.isExistEmail(email)) {
                     if (userService.activateEmail(email)) {
                         RequestDispatcher requestDispatcher = request.getRequestDispatcher("");//--CONGRATULATION JSP
                         requestDispatcher.forward(request, response);
                     } else {
-                    ExceptionHandler.handleException(new MailSenderException("Email has already been activated", LogicException.ExceptionType.USER_EXCEPTION),request,response);
+                    ExceptionHandler.handleException(new MailSenderException("Email has already been activated or deleted", LogicException.ExceptionType.USER_EXCEPTION),request,response);
                     }
-                    ExceptionHandler.handleException(new MailSenderException("Email was deleted or changed", LogicException.ExceptionType.USER_EXCEPTION),request,response);
-                }
             } catch (DBException e) {
                 ExceptionHandler.handleException(e,request,response);
             }

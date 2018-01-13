@@ -6,5 +6,5 @@ import ua.nure.ponomarev.exception.DBException;
  * @author Bogdan_Ponamarev.
  */
 public interface TransactionOperation<T> {
-    T doWitTransaction() throws DBException;
+    T execute() throws DBException;
 }

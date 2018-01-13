@@ -11,9 +11,8 @@ import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.form.FormMaker;
 import ua.nure.ponomarev.web.form.RegistrationForm;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.web.transformer.UserTransformer;
+import ua.nure.ponomarev.web.transformer.Transformer;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
-import ua.nure.ponomarev.web.validator.Validator;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -47,12 +46,7 @@ public class RegistrationServlet extends HttpServlet {
         RegistrationForm registrationForm = abstractFormMaker.createRegistrationForm(request);
         Map<String, String> errors = formValidator.validate(registrationForm);
         try {
-            if (userService.isExistEmail(registrationForm.getEmail())) {
-                errors.put("emailExist", "Email has already taken");
-            }
-            if (userService.isExistPhoneNumber(registrationForm.getPhoneNumber())) {
-                errors.put("phoneNumberExist", "Phone number has already taken");
-            }
+            userService.addUser(Transformer.transformToUser(registrationForm));//HERE IS THE BAG,FIX IT!
         } catch (DBException e) {
             ExceptionHandler.handleException(e,request,response);
         }
@@ -64,7 +58,7 @@ public class RegistrationServlet extends HttpServlet {
         }
         else{
             logger.info("User entered correct data");
-            request.getSession().setAttribute("user",UserTransformer.transform(registrationForm));
+            request.getSession().setAttribute("user", Transformer.transformToUser(registrationForm));
             request.setAttribute("asd","asd");
             request.setAttribute("phone_number",request.getParameter("phone_number"));
             new Thread(){

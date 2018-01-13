@@ -3,15 +3,12 @@ package ua.nure.ponomarev.web.servlets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
-import org.json.JSONObject;
 import ua.nure.ponomarev.entity.User;
 import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.service.NotificationService;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
-import ua.nure.ponomarev.web.transformer.UserTransformer;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
