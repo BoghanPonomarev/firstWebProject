@@ -8,9 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RegistrationForm implements Form {
-    private String email;
     private String phoneNumber;
-    private String login;
     private String firstPassword;
     private String secondPassword;
 }

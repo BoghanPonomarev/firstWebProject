@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.exception.LogicException;
 import ua.nure.ponomarev.exception.SMSSenderException;
 import ua.nure.ponomarev.sender.SmsSender;
-import ua.nure.ponomarev.service.Token;
-
 import java.io.*;
 
 import java.net.URL;

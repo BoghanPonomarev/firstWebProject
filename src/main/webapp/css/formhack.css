@@ -167,13 +167,6 @@ input[type="radio"] {
   display: inline-block;
   vertical-align: middle;
 }
-/* For checkbox and radio to be centered, need to wrap the input and label in a span -
-/* .checkbox-container {
-/*  display: block;
-/*  text-align: center;
-/* }
-/* Select ------------------ */
-
 select {
   height: var(--fh-input-height);
 
@@ -253,14 +246,6 @@ button[disabled] {
   cursor: not-allowed;
 }
 
-input:focus,
-textarea:focus,
-select:focus,
-option:focus,
-button:focus  {
-  background-color: var(--fh-focus-bg-color);
-  border-color: var(--fh-focus-border-color);
-}
 
 input[type="checkbox"]:focus,
 input[type="radio"]:focus {
@@ -279,30 +264,10 @@ input[type="reset"]:focus {
   color: var(--fh-button-hover-font-color);
 }
 
-
-
-
-/* Custom ------------------ */
-
-
-input:not([type="submit"]):valid {
-  border-color: #2ecc71;
-}
-
-
-/* Hide and show related .input-requirements when interacting with input */
-
-input:not([type="submit"]) + .input-requirements {
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height 1s ease-out;  
-}
-
-input:not([type="submit"]):hover + .input-requirements,
-input:not([type="submit"]):focus + .input-requirements,
-input:not([type="submit"]):active + .input-requirements {
-  max-height: 1000px; /* any large number (bigger then the .input-requirements list) */
-  transition: max-height 1s ease-in;
+li{
+  display: none;
+  color: red;
+  height: 30px;
 }
 
 

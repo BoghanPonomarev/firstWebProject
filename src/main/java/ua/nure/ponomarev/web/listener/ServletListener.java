@@ -4,7 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.dao.impl.SqlAccountDao;
 import ua.nure.ponomarev.dao.impl.SqlUserDao;
-import ua.nure.ponomarev.encoder.impl.AESEncoder;
+import ua.nure.ponomarev.hash.Hash;
+import ua.nure.ponomarev.hash.ShaHashImpl;
 import ua.nure.ponomarev.sender.SmsSender;
 import ua.nure.ponomarev.sender.impl.SmsSenderImpl;
 import ua.nure.ponomarev.service.UserService;
@@ -35,6 +36,7 @@ public class ServletListener implements ServletContextListener {
     @Resource(name = "jdbc/data_source")
     private DataSource dataSource;
     private TransactionManager transactionManager;
+    private Hash hash;
 
     public ServletListener() {
         logger.info("Application was started");
@@ -50,7 +52,6 @@ public class ServletListener implements ServletContextListener {
         notificationServiceInitialized(servletContext);
         accountServiceInitialized(servletContext);
         registrationValidatorInitialized(servletContext);
-        encoderInitialized(servletContext);
     }
 
     private void accountServiceInitialized(ServletContext servletContext) {
@@ -65,7 +66,9 @@ public class ServletListener implements ServletContextListener {
 
     private void userServiceInitialized(ServletContext servletContext) {
         transactionManager = new TransactionManager(dataSource);
-        UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource));
+        hash = new ShaHashImpl();
+        servletContext.setAttribute("hash",hash);
+        UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource),hash);
         servletContext.setAttribute("user_service", userService);
     }
 
@@ -85,11 +88,4 @@ public class ServletListener implements ServletContextListener {
         servletContext.setAttribute("account_validator", new AccountValidator());
     }
 
-    private void encoderInitialized(ServletContext servletContext) {
-        try {
-            servletContext.setAttribute("encoder", new AESEncoder());
-        } catch (Exception e) {
-            logger.fatal("Encoder does not initialized " + e);
-        }
-    }
 }

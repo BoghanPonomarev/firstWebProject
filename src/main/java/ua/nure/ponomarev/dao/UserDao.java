@@ -14,9 +14,11 @@ import java.util.List;
 public interface UserDao {
     int put(User user) throws DBException;
 
+    void set(UserCriteria userCriteria,int oldUserID) throws DBException;
+
      User get(UserCriteria userCriteria) throws DBException;
 
-    boolean activateEmail(String email) throws DBException;
-
     List<User> getAll() throws DBException;
+
+    List<User> getAll(UserCriteria userCriteria) throws DBException;
 }

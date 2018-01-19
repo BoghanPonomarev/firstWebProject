@@ -71,8 +71,8 @@ public class NotificationServiceImpl implements NotificationService {
         for (Token tok : emailTokens) {
             if (tok.getData() == id) {
                 emailTokens.remove(tok);
-                logger.info(tok.getIdentificationName() + " letter was deleted");
-                return tok.getIdentificationName();
+                logger.info(tok.getIdentificationData() + " letter was deleted");
+                return tok.getIdentificationData();
             }
         }
         return null;
@@ -89,7 +89,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public boolean isValidPhonePinCode(int pinCode, String phoneNumber) {
         for (Token token : smsTokens) {
-            if (token.getData() == pinCode && phoneNumber.equals(token.getIdentificationName())) {
+            if (token.getData() == pinCode && phoneNumber.equals(token.getIdentificationData())) {
                 return true;
             }
         }
@@ -99,8 +99,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void removePhonePinCode(String phoneNumber) {
         for (Token token : smsTokens) {
-            if (phoneNumber.equals(token.getIdentificationName())) {
-                logger.info(token.getIdentificationName() + " sms code was deleted");
+            if (phoneNumber.equals(token.getIdentificationData())) {
+                logger.info(token.getIdentificationData() + " sms code was deleted");
                 smsTokens.remove(token);
             }
         }

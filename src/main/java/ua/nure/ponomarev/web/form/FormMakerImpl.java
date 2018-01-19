@@ -13,8 +13,6 @@ public class FormMakerImpl implements FormMaker {
     @Override
     public RegistrationForm createRegistrationForm(HttpServletRequest request) {
         RegistrationForm result= new RegistrationForm();
-           result.setEmail(request.getParameter("email"));
-            result.setLogin(request.getParameter("login"));
             result.setPhoneNumber(request.getParameter("phone_number"));
             result.setFirstPassword(request.getParameter("password"));
             result.setSecondPassword(request.getParameter("password_repeat"));

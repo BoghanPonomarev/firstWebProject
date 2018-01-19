@@ -62,6 +62,9 @@ public class TokenSet implements Set<Token> {
 
     @Override
     public boolean add(Token token) {
+        if(tokens.contains(token)){
+            tokens.remove(token);
+        }
         return tokens.add(token);
     }
 

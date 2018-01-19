@@ -7,10 +7,10 @@
     <title>Authorization</title>
 </head>
 <body>
-<c:forEach items="${errors}" var="error">
-    <c:out value="${error.value}"/><br>
+<c:forEach items="${requestScope.errors}" var="error">
+    <c:out value="${error}"/><br>
 </c:forEach>
-<form action="${contextPath}/authorization" method="post">
+<form action="${contextPath}/authorization/check" method="post">
    phone number:
 <input name="phone_number" maxlength="15"><br>
     password:

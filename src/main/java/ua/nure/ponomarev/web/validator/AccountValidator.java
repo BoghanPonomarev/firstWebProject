@@ -15,8 +15,8 @@ public class AccountValidator implements Validator<AccountForm> {
     private Pattern cardNumberPattern = Pattern.compile("\\d{13,16}");
 
     @Override
-    public Map<String, String> validate(AccountForm form) {
-        HashMap<String, String> errors = new HashMap<>();
+    public List<String> validate(AccountForm form) {
+        List<String> errors = new ArrayList<>();
         cardNumberValidation(errors,form);
         amountValidation(errors,form);
         CVVValidation(errors,form);
@@ -24,24 +24,24 @@ public class AccountValidator implements Validator<AccountForm> {
         return errors;
     }
 
-    private void amountValidation(Map<String,String> errors,AccountForm form) {
+    private void amountValidation(List<String>  errors,AccountForm form) {
         if(!amountPattern.matcher(form.getAmount()).matches()){
-            errors.put("amount","Amount of money is not valid");
+            errors.add("Amount of money is not valid");
         }
     }
-    private void CVVValidation(Map<String,String> errors,AccountForm form) {
+    private void CVVValidation(List<String>  errors,AccountForm form) {
         if(!CVVPattern.matcher(form.getCVV()).matches()){
-            errors.put("CVV","CVV of card is not valid");
+            errors.add("CVV of card is not valid");
         }
     }
-    private void dateValidation(Map<String,String> errors,AccountForm form) {
+    private void dateValidation(List<String>  errors,AccountForm form) {
         if(!datePattern.matcher(form.getValidTrue()).matches()){
-            errors.put("date","Date of card is not valid");
+            errors.add("Date of card is not valid");
         }
     }
-    private void cardNumberValidation(Map<String,String> errors,AccountForm form) {
+    private void cardNumberValidation(List<String>  errors,AccountForm form) {
         if (!cardNumberPattern.matcher(form.getCardNumber()).matches()) {
-            errors.put("card number", "Card number is not valid");
+            errors.add( "Card number is not valid");
         }
     }
 }

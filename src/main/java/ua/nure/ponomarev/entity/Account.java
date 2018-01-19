@@ -15,6 +15,7 @@ import java.time.LocalDate;
 public class Account {
     private Card card;
     private int id;
+    private boolean banned;
     @Getter
     @Setter
     public static class Card{
@@ -22,5 +23,6 @@ public class Account {
         private String cardNumber;
         private LocalDate validThru;
         private String CVV;
+        private int currencyId;
     }
 }

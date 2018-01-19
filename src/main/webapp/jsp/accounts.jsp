@@ -5,15 +5,18 @@
 <html>
 <head>
     <title>Accounts</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <link href="${contextPath}/css/asking_for_delete.css" rel="stylesheet" type="text/css" media="all"/>
 </head>
 <body>
-<c:if test="${accounts==null}">
+<a href="${contextPath}/show_profile">Profile</a>
+<c:if test="${requestScope.accounts==null}">
    <h3>У вас ни одного аккаунта</h3>
 </c:if>
-<c:if test="${accounts!=null}">
+<c:if test="${requestScope.accounts!=null}">
     <h3>Your cards:</h3><br>
 
-<c:forEach items="${accounts}" var="account">
+<c:forEach items="${requestScope.accounts}" var="account">
 <table border="1px">
     <tr>
         <td>
@@ -55,13 +58,22 @@
             <c:out value="${account.card.amount}"/>
         </td>
     </tr>
-</table><a href="${contextPath}/account_delete?id=${account.id}">delete</a><br>
+    <tr>
+        <td>
+            Is banned
+        </td>
+        <td>
+            <c:out value="${account.banned}"/>
+        </td>
+    </tr>
+</table>
+    <input type="button" value="delete" onclick="showWindow(${account.id})" id="delete-button"><br>
 </c:forEach>
 </c:if>
 <c:forEach items="${requestScope.errors}" var="error">
-    ${error.value}<br>
+    ${error}<br>
 </c:forEach>
-<form method="post" action="${contextPath}/accounts">
+<form method="post" action="${contextPath}/accounts/add">
     card number: <input name="card_number"><br>
     month: <select name="month">
     <option value="01">01</option>
@@ -94,5 +106,15 @@
     money amount:<input name="amount"><br>
     <input type="submit" value="submit">
 </form>
+<div id="prompt-form-container">
+    <form id="prompt-form">
+        <div id="prompt-message"></div>
+        <input name="text" id="password" type="password">
+        <input type="button" id="commit_req" value="Ок">
+        <input type="button" name="cancel" value="Отмена">
+    </form>
+</div>
+<script src="${contextPath}/js/asking_for_password_script.js"></script>
+<script src="${contextPath}/js/delete_account_ajax.js"></script>
 </body>
 </html>

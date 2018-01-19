@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
         return transactionManager.doWithTransaction(() -> {
             User user = new User();
             user.setId(id);
-            return accountDao.getAccounts(new UserCriteria(user));
+            return accountDao.getAll(new UserCriteria(user));
         });
     }
 
@@ -36,7 +36,7 @@ public class AccountServiceImpl implements AccountService {
         return transactionManager.doWithTransaction(() -> {
             User user = new User();
             user.setPhoneNumber(PhoneNumber);
-            return accountDao.getAccounts(new UserCriteria(user));
+            return accountDao.getAll(new UserCriteria(user));
         });
     }
 
@@ -44,21 +44,29 @@ public class AccountServiceImpl implements AccountService {
     public void putAccount(Account account, int userId) throws DBException {
         transactionManager.doWithoutTransaction(() -> {
 
-            accountDao.putAccount(account, userId);
-            return true;
+            accountDao.put(account, userId);
+            return null;
         });
     }
 
     @Override
-    public boolean isValidAccount(int accountId,String cardNumber) throws DBException {
-        return transactionManager.doWithoutTransaction(() -> !accountDao.isExist(accountId,cardNumber));
+    public boolean isExistAccount(int accountId, String cardNumber) throws DBException {
+        return transactionManager.doWithoutTransaction(() -> accountDao.isExist(accountId, cardNumber));
     }
 
     @Override
     public void delete(int accountId) throws DBException {
         transactionManager.doWithoutTransaction(() -> {
             accountDao.delete(accountId);
-            return true;
+            return null;
+        });
+    }
+
+    @Override
+    public void setBanValue(int accountId, boolean value) throws DBException {
+        transactionManager.doWithoutTransaction(() -> {
+            accountDao.setBanOfAccount(value, accountId);
+            return null;
         });
     }
 }

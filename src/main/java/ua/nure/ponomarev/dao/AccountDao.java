@@ -9,9 +9,11 @@ import java.util.List;
  * @author Bogdan_Ponamarev.
  */
 public interface AccountDao {
-    List<Account> getAccounts(UserCriteria userCriteria) throws DBException;
+    List<Account> getAll(UserCriteria userCriteria) throws DBException;
 
-    void putAccount(Account account, int userId) throws DBException;
+    void put(Account account, int userId) throws DBException;
+
+    void setBanOfAccount(boolean value,int oldAccountId) throws DBException;
 
     boolean isExist(int id,String cardNumber) throws DBException;
 

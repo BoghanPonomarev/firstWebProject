@@ -2,13 +2,11 @@ package ua.nure.ponomarev.dao.impl;
 
 import ua.nure.ponomarev.criteria.UserCriteria;
 import ua.nure.ponomarev.dao.UserDao;
-import ua.nure.ponomarev.exception.LogicException;
-import ua.nure.ponomarev.holder.SqlConnectionHolder;
 import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.entity.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import ua.nure.ponomarev.hash.Hash;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -20,16 +18,14 @@ import java.util.Map;
  * Waiting for task(Need changing) WHEN YOU WILL WRITE MY_RES_SET -CHANGE THIS CLASS(CLOSE RESULT SET)
  */
 public class SqlUserDao implements UserDao {
+    private static final String SQL_UPDATE_QUERY_TO_FILL = "UPDATE webproject.users SET ";
     private static Logger logger = LogManager.getLogger(SqlUserDao.class);
-    private static final String SQL_QUERY_CREATE = "INSERT INTO webproject.users (login,password,phone_number,email) VALUES (?,?,?,?)";
-    private static final String SQL_SELECT_QUERY = "SELECT * FROM webproject.users WHERE";
-    private static final String SQL_QUERY_GET_ALL = "SELECT * FROM webproject.users";
-    private static final String SQL_QUERY_ACTIVATE_EMAIL = "UPDATE webproject.users SET is_activated_email=false WHERE email = ?";
-    private DataSource dataSource;
+    private static final String SQL_CREATE_QUERY = "INSERT INTO webproject.users (password,phone_number) VALUES (?,?)";
+    private static final String SQL_SELECT_QUERY_TO_FILL = "SELECT * FROM webproject.users WHERE";
+    private static final String SQL_GET_ALL_QUERY = "SELECT * FROM webproject.users";
+    private static final String SQL_ACTIVATE_EMAIL_QUERY = "UPDATE webproject.users SET is_activated_email=false WHERE email = ?";
     private SqlDaoConnectionManager connectionManager;
-
     public SqlUserDao(DataSource dataSource) {
-        this.dataSource = dataSource;
         connectionManager = new SqlDaoConnectionManager(dataSource);
     }
 
@@ -44,11 +40,9 @@ public class SqlUserDao implements UserDao {
         ResultSet resultSet = null;
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(SQL_QUERY_CREATE, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, user.getLogin());
-            preparedStatement.setString(2, user.getPassword());
-            preparedStatement.setString(3, user.getPhoneNumber());
-            preparedStatement.setString(4, user.getEmail());
+            preparedStatement = connection.prepareStatement(SQL_CREATE_QUERY, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, user.getPassword());
+            preparedStatement.setString(2, user.getPhoneNumber());
             preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
@@ -64,17 +58,49 @@ public class SqlUserDao implements UserDao {
         return -1;
     }
 
+    @Override
+    public void set(UserCriteria userCriteria, int oldUserID) throws DBException {
+        PreparedStatement preparedStatement=null;
+        try {
+            Connection connection=connectionManager.getConnection();
+            preparedStatement = connection.prepareStatement(createUpdateQuery(userCriteria,oldUserID));
+            preparedStatement.execute();
+        } catch (SQLException e) {
+           logger.error("can`t update user"+e);
+           throw new DBException("Currently, we can`t update your data");
+        }finally {
+            connectionManager.closePrepareStatement(preparedStatement);
+        }
+    }
+   private String createUpdateQuery(UserCriteria userCriteria,int oldId){
+       StringBuilder stringBuilder = new StringBuilder(SQL_UPDATE_QUERY_TO_FILL);
+       boolean isPrevious = false;
+       Map<String, String> parameters = userCriteria.getCriteria();
+       for (String key : parameters.keySet()) {
+           if (parameters.get(key) != null) {
+               if (isPrevious) {
+                   stringBuilder.append(" , ");
+               }
+               stringBuilder.append(" ").append(key).append("=\'").append(parameters.get(key)).append('\'');
+               isPrevious = true;
+           }
+       }
+       return stringBuilder.append(" WHERE id=\'").append(oldId).append('\'').toString();
+   }
     private User fillUser(ResultSet resultSet) throws DBException {
         User user = null;
         try {
             if (resultSet.next()) {
                 user = new User();
                 user.setId(resultSet.getInt(1));
-                user.setLogin(resultSet.getString(2));
-                user.setPassword(resultSet.getString(3));
-                user.setPhoneNumber(resultSet.getString(4));
-                user.setEmail(resultSet.getString(5));
-                user.setActiveEmail(resultSet.getBoolean(6));
+                user.setPassword(resultSet.getString(2));
+                user.setPhoneNumber(resultSet.getString(3));
+                user.setEmail(resultSet.getString(4));
+                user.setFirstName(resultSet.getString(5));
+                user.setSecondName(resultSet.getString(6));
+                user.setThirdName(resultSet.getString(7));
+                user.setRole(User.Role.valueOf(resultSet.getString(8)));
+                user.setBanned(resultSet.getBoolean(9));
             }
         } catch (SQLException ex) {
             logger.error("Something wrong with data filling", ex);
@@ -83,6 +109,13 @@ public class SqlUserDao implements UserDao {
         return user;
     }
 
+    /**
+     * give user with special criteria but only one
+     * if there are more users it will give the first
+     * @param userCriteria criteria of user
+     * @return the first user, who is match to this criteria
+     * @throws DBException if there is some wrong with DB
+     */
     @Override
     public User get(UserCriteria userCriteria) throws DBException {
         PreparedStatement preparedStatement = null;
@@ -102,7 +135,7 @@ public class SqlUserDao implements UserDao {
     }
 
     private String createSelectQuery(UserCriteria userCriteria) {
-        StringBuilder stringBuilder = new StringBuilder(SQL_SELECT_QUERY);
+        StringBuilder stringBuilder = new StringBuilder(SQL_SELECT_QUERY_TO_FILL);
         boolean isPrevious = false;
         Map<String, String> parameters = userCriteria.getCriteria();
         for (String key : parameters.keySet()) {
@@ -114,46 +147,36 @@ public class SqlUserDao implements UserDao {
                 isPrevious = true;
             }
         }
+        if(!isPrevious){
+            return stringBuilder.delete(stringBuilder.indexOf("WHERE"),stringBuilder.length()-1).toString();
+        }
         return stringBuilder.toString();
     }
 
-    @Override
-    public boolean activateEmail(String email) throws DBException {
+    public List<User> getAll(UserCriteria userCriteria) throws DBException{
         PreparedStatement preparedStatement = null;
-        try {
-            Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(SQL_QUERY_ACTIVATE_EMAIL);
-            preparedStatement.setString(1, email);
-            return preparedStatement.executeUpdate() != 0;
-        } catch (SQLException e) {
-            logger.error("Email was`nt activated", e);
-            throw new DBException("Email was`nt activated",DBException.ExceptionType.SERVER_EXCEPTION,e);
-        } finally {
-            connectionManager.closePrepareStatement(preparedStatement);
-        }
-    }
-
-    @Override
-    public List<User> getAll() throws DBException {
-        List<User> list = new ArrayList<>();
         ResultSet resultSet = null;
-        PreparedStatement preparedStatement = null;
+        List<User> resultUsers = new ArrayList<>();
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(SQL_QUERY_GET_ALL);
+            preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria));
             resultSet = preparedStatement.executeQuery();
             User user;
-            while ((user = fillUser(resultSet)) != null) {
-                list.add(user);
-            }
+             while((user = fillUser(resultSet))!=null){
+                 resultUsers.add(user);
+             }
         } catch (SQLException ex) {
-            logger.error("Could not get users", ex);
-            throw new DBException("Could not get users",DBException.ExceptionType.SERVER_EXCEPTION,ex);
+            logger.error("Could not get user", ex);
+            throw new DBException("Could not get user",DBException.ExceptionType.SERVER_EXCEPTION,ex);
         } finally {
             connectionManager.closeResultSet(resultSet);
             connectionManager.closePrepareStatement(preparedStatement);
         }
-        return list;
+        return resultUsers;
+    }
+    @Override
+    public List<User> getAll() throws DBException {
+       return getAll(new UserCriteria(new User()));
     }
 
 

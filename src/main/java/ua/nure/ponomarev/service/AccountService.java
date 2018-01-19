@@ -15,7 +15,9 @@ public interface AccountService {
 
     void putAccount(Account account, int userId) throws DBException;
 
-    boolean isValidAccount(int accountId,String cardNumber) throws DBException;
+    boolean isExistAccount(int id,String cardNumber) throws DBException;
 
     void delete(int accountId) throws DBException;
+
+    void setBanValue(int accountId,boolean value) throws DBException;
 }

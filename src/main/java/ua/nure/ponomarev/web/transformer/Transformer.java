@@ -18,8 +18,6 @@ public class Transformer {
     private static Logger logger = LogManager.getLogger(Transformer.class);
     public static User transformToUser(RegistrationForm registrationForm){
         User user=new User();
-        user.setEmail(registrationForm.getEmail());
-        user.setLogin(registrationForm.getLogin());
         user.setPassword(registrationForm.getFirstPassword());
         user.setPhoneNumber(registrationForm.getPhoneNumber());
         return user;
@@ -32,7 +30,7 @@ public class Transformer {
         card.setCardNumber(accountForm.getCardNumber());
         card.setCVV(accountForm.getCVV());
         card.setValidThru(LocalDate.parse("20" + accountForm.getValidTrue()+"-01"));
-        return new Account(card,0);
+        return new Account(card,0,false);
     }
 
     /**
@@ -40,7 +38,7 @@ public class Transformer {
      * sure that in all cases I transform account after processing in validation Class
      * @param accountForm form that was fill by FormMaker and currently should
      *                   be processed by validation class
-     * @throws TransformationException if there is invalid datain form
+     * @throws TransformationException if there is invalid data in form
      */
     private static void accountFormChecking(AccountForm accountForm) throws TransformationException {
         if(accountForm.getAmount()==null||!accountForm.getAmount().chars().allMatch(Character::isDigit)){

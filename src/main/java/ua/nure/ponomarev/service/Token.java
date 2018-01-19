@@ -7,14 +7,14 @@ public class Token {
     /**
      * variable that contain unique data , like email or phone number
      */
-    private String identificationName;
+    private String identificationData;
 
     private int data;
 
     private long time;
 
     public Token(String identificationName,long timeMinuets,int data){
-        this.identificationName =identificationName;
+        this.identificationData =identificationName;
         this.time= System.currentTimeMillis()/60000 + timeMinuets;
         this.data = data;
     }
@@ -23,8 +23,8 @@ public class Token {
         return currentTimeMinutes < time;
     }
 
-    public String getIdentificationName() {
-        return identificationName;
+    public String getIdentificationData() {
+        return identificationData;
     }
 
     public long getTime() {
@@ -35,12 +35,12 @@ public class Token {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        return identificationName != null ? identificationName.equals(((Token)o).identificationName) : ((Token)o).identificationName == null;
+        return identificationData != null ? identificationData.equals(((Token)o).identificationData) : ((Token)o).identificationData == null;
     }
 
     @Override
     public int hashCode() {
-        return identificationName != null ? identificationName.hashCode() : 0;
+        return identificationData != null ? identificationData.hashCode() : 0;
     }
 
     public int getData() {
