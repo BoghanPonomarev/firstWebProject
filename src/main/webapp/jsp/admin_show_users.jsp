@@ -8,24 +8,39 @@
 </head>
 <body>
 <c:if test="${requestScope.users!=null}">
+<div class="basix-container">
+        <jsp:include page="../html/dashboard.jsp"></jsp:include>
+    <div class="right-panel" id="right-panel">
+            <jsp:include page="../html/header.html"></jsp:include>
     <c:forEach items="${requestScope.users}" var="user">
         user id: ${user.key.id}<br>
         user email: ${user.key.email}<br>
         user phone number: ${user.key.phoneNumber}<br>
         user role: ${user.key.role}<br>
         user banned: ${user.key.banned}<br>
-        <a href="${contextPath}/admin/ban_user?user_id=${user.key.id}&ban_status=${user.key.banned}">set banned value</a><br>
+        <a href="${contextPath}/admin/ban_user?user_id=${user.key.id}&ban_status=${user.key.banned}">set banned
+            value</a><br>
         <c:if test="${user.value!=null}">
             <c:forEach items="${user.value}" var="account">
                 <table border="1">
-                    <tr><td>account id :</td><td>${account.id}</td></tr><br>
-                <tr><td>account status :</td><td>${account.banned}</td></tr><br>
+                    <tr>
+                        <td>account id :</td>
+                        <td>${account.id}</td>
+                    </tr>
+                    <br>
+                    <tr>
+                        <td>account status :</td>
+                        <td>${account.banned}</td>
+                    </tr>
+                    <br>
                 </table>
-                <a href="${contextPath}/admin/ban_account?account_id=${account.id}&ban_status=${account.banned}">set banned value of account</a><br>
+                <a href="${contextPath}/admin/ban_account?account_id=${account.id}&ban_status=${account.banned}">set
+                    banned value of account</a><br>
             </c:forEach>
         </c:if>
         <hr>
     </c:forEach>
 </c:if>
+    </div></div>
 </body>
 </html>

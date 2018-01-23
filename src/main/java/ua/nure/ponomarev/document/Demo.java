@@ -15,16 +15,17 @@ import java.util.Arrays;
 public class Demo {
 
     private static final Logger log = LogManager.getLogger(MethodHandles.lookup().lookupClass());
+
     public static void main(String[] args) throws IOException {
         log.info("Start");
         ReportGenerator reportGenerator = new ReportGenerator();
         byte[] report = reportGenerator.generateReport(DocumentType.getDocumentType("PDF"),
                 "payment",
                 Arrays.asList(RenderPaymentDto.builder()
-                .amount("11")
-                .amountCursive("Одинадцать")
-                .build()));
-        try(FileOutputStream fileOutputStream = new FileOutputStream(new File("test.pdf"))){
+                        .amount("11")
+                        .amountCursive("Одинадцать")
+                        .build()));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(new File("test.pdf"))) {
             fileOutputStream.write(report);
         }
 

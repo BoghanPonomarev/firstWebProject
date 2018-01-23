@@ -2,8 +2,7 @@ package ua.nure.ponomarev.dao.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.nure.ponomarev.exception.DBException;
-import ua.nure.ponomarev.exception.LogicException;
+import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.holder.SqlConnectionHolder;
 
 import javax.sql.DataSource;
@@ -18,9 +17,11 @@ import java.sql.SQLException;
 public class SqlDaoConnectionManager {
     private static Logger logger = LogManager.getLogger(SqlDaoConnectionManager.class);
     private DataSource dataSource;
-    public SqlDaoConnectionManager(DataSource dataSource){
+
+    public SqlDaoConnectionManager(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
     public Connection getConnection() throws SQLException {
 
         Connection connection = SqlConnectionHolder.getConnection();
@@ -29,14 +30,15 @@ public class SqlDaoConnectionManager {
         }
         return connection;
     }
-    public void closeResultSet(ResultSet resultSet) throws DBException {
+
+    public void closeResultSet(ResultSet resultSet) throws DbException {
         try {
             if (resultSet != null) {
                 resultSet.close();
             }
         } catch (SQLException e) {
             logger.error("Result set has`nt been closed");
-            throw new DBException("Result set has`nt been closed",DBException.ExceptionType.SERVER_EXCEPTION,e);
+            throw new DbException("Result set has`nt been closed", DbException.ExceptionType.SERVER_EXCEPTION, e);
         }
     }
 

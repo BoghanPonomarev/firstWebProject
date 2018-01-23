@@ -3,13 +3,13 @@ package ua.nure.ponomarev.service.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.nure.ponomarev.exception.SMSSenderException;
+import ua.nure.ponomarev.exception.MailSenderException;
+import ua.nure.ponomarev.exception.SmsSenderException;
 import ua.nure.ponomarev.sender.EmailSender;
 import ua.nure.ponomarev.sender.SmsSender;
+import ua.nure.ponomarev.service.NotificationService;
 import ua.nure.ponomarev.service.Token;
 import ua.nure.ponomarev.service.TokenSet;
-import ua.nure.ponomarev.service.NotificationService;
-import ua.nure.ponomarev.exception.MailSenderException;
 
 import java.util.Set;
 
@@ -33,21 +33,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendConfirmEmail(String email) throws MailSenderException {
         mailNotificator.sendEmail(email, "Registration", makeEmailMassage(email));
-        logger.info("Letter was sent to "+email);
+        logger.info("Letter was sent to " + email);
     }
 
     private String makeEmailMassage(String email) {
-            int id;
-            boolean isExistId=false;
-            do{
-                id = (int)(Math.random()*Integer.MAX_VALUE/1.5);
-                for (Token tok: emailTokens){
-                    if(tok.getData()==id){
-                        isExistId=true;
-                    }
+        int id;
+        boolean isExistId = false;
+        do {
+            id = (int) (Math.random() * Integer.MAX_VALUE / 1.5);
+            for (Token tok : emailTokens) {
+                if (tok.getData() == id) {
+                    isExistId = true;
                 }
-            }while(isExistId);
-        emailTokens.add(new Token(email,60,id));
+            }
+        } while (isExistId);
+        emailTokens.add(new Token(email, 60, id));
         return "<h3>Hello , here is your link<h3><br><a href='http://localhost:8080/app/confirm_registration?id=" + id + "'>confirm registration</a>";
     }
 
@@ -62,8 +62,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     /**
-     *
      * Method for deleting token when user confirms email
+     *
      * @return email if container of tokens contains id or null if dose`nt
      */
     @Override
@@ -79,11 +79,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendPinCode(String phoneNumber) throws SMSSenderException {
+    public void sendPinCode(String phoneNumber) throws SmsSenderException {
         int pinCode = (int) (Math.random() * 89999 + 10000);
-        String res = phoneNotificator.sendPinCode(phoneNumber,"Your code:"+pinCode);
+        String res = phoneNotificator.sendPinCode(phoneNumber, "Your code:" + pinCode);
         smsTokens.add(new Token(phoneNumber, 3, pinCode));
-        logger.info("Pin code ("+pinCode+") was sent to "+phoneNumber+ " answer code is: "+res);
+        logger.info("Pin code (" + pinCode + ") was sent to " + phoneNumber + " answer code is: " + res);
     }
 
     @Override

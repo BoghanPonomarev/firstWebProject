@@ -4,7 +4,11 @@ package ua.nure.ponomarev.service;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Bogdan_Ponamarev.
  */
@@ -17,18 +21,20 @@ public class TokenSet implements Set<Token> {
         th.setDaemon(true);
         return th;
     });
-    public TokenSet(int defaultMinutesDelay){
+
+    public TokenSet(int defaultMinutesDelay) {
         tokens = new CopyOnWriteArraySet<>();
         scheduler.scheduleAtFixedRate(() -> {
-                long currentMinutes = System.currentTimeMillis()/60000;
-                for (Token t : tokens) {
-                    if (!t.isAlive(currentMinutes)) {
-                        tokens.remove(t);
-                    }
+            long currentMinutes = System.currentTimeMillis() / 60000;
+            for (Token t : tokens) {
+                if (!t.isAlive(currentMinutes)) {
+                    tokens.remove(t);
                 }
+            }
 
         }, 2, defaultMinutesDelay, TimeUnit.MINUTES);
     }
+
     @Override
     public int size() {
         return tokens.size();
@@ -62,7 +68,7 @@ public class TokenSet implements Set<Token> {
 
     @Override
     public boolean add(Token token) {
-        if(tokens.contains(token)){
+        if (tokens.contains(token)) {
             tokens.remove(token);
         }
         return tokens.add(token);

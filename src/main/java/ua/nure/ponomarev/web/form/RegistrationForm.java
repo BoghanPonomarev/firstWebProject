@@ -2,6 +2,7 @@ package ua.nure.ponomarev.web.form;
 
 import lombok.Getter;
 import lombok.Setter;
+
 /**
  * @author Bogdan_Ponamarev.
  */

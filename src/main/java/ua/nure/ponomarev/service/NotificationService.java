@@ -1,7 +1,7 @@
 package ua.nure.ponomarev.service;
 
 import ua.nure.ponomarev.exception.MailSenderException;
-import ua.nure.ponomarev.exception.SMSSenderException;
+import ua.nure.ponomarev.exception.SmsSenderException;
 
 /**
  * @author Bogdan_Ponamarev.
@@ -13,7 +13,7 @@ public interface NotificationService {
 
     String removeEmailId(int id);
 
-    void sendPinCode(String phoneNumber) throws SMSSenderException;
+    void sendPinCode(String phoneNumber) throws SmsSenderException;
 
     boolean isValidPhonePinCode(int pinCode, String phoneNumber);
 

@@ -3,13 +3,15 @@ package ua.nure.ponomarev.web.command.authorization;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.entity.User;
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.exception.CredentialException;
+import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.command.FrontCommand;
 import ua.nure.ponomarev.web.form.AuthorizationForm;
 import ua.nure.ponomarev.web.form.FormMaker;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
 import ua.nure.ponomarev.web.page.Mapping;
+import ua.nure.ponomarev.web.transformer.Transformer;
 import ua.nure.ponomarev.web.validator.AuthorizationValidator;
 
 import javax.servlet.ServletConfig;
@@ -33,7 +35,7 @@ public class AuthorizationCheckCommand extends FrontCommand {
     @Override
     public void init(HttpServletRequest request, HttpServletResponse response
             , ServletContext servletContext, ServletConfig config) {
-        super.init(request, response,  servletContext, config);
+        super.init(request, response, servletContext, config);
         userService = (UserService) config.getServletContext().getAttribute("user_service");
         authorizationValidator = (AuthorizationValidator) config.getServletContext().getAttribute("authorization_validator");
         formMaker = (FormMaker) config.getServletContext().getAttribute("form_maker");
@@ -41,24 +43,20 @@ public class AuthorizationCheckCommand extends FrontCommand {
 
     @Override
     public void execute() throws ServletException, IOException {
-        AuthorizationForm authorizationForm= formMaker.createAuthorizationForm(request);
+        AuthorizationForm authorizationForm = formMaker.createAuthorizationForm(request);
         List<String> errors = authorizationValidator.validate(authorizationForm);
-        String phoneNumber =request.getParameter("phone_number");
-        String password =request.getParameter("password");
         User user;
         try {
-            user=userService.getUser(phoneNumber,password);
-            if (user==null) {
-                errors.add("Wrong phone number or password");
-            }else{
-                request.getSession().setAttribute("userId",user.getId());
-                request.getSession().setAttribute("userRole",user.getRole());
-                forward("/accounts/show_accounts");
-            }
-        } catch (DBException e) {
-            ExceptionHandler.handleException(e,request,response);
+            user = userService.getFullUser(Transformer.transformToUser(formMaker.createUserForm(request)));
+            request.getSession().setAttribute("userId", user.getId());
+            request.getSession().setAttribute("userRole", user.getRole());
+            forward("/accounts/show_accounts");
+        } catch (DbException e) {
+            ExceptionHandler.handleException(e, request, response);
+        } catch (CredentialException e) {
+            errors.addAll(e.getErrors());
         }
-        if(!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             logger.info("User made some authorization mistakes");
             request.setAttribute("errors", errors);
             forward(Mapping.getPagePath(Mapping.Page.AUTHORIZATION_PAGE));

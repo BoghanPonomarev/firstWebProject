@@ -3,13 +3,14 @@ package ua.nure.ponomarev.web.command.registration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.entity.User;
-import ua.nure.ponomarev.web.page.Mapping;
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.exception.CredentialException;
+import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.command.FrontCommand;
 import ua.nure.ponomarev.web.form.FormMaker;
 import ua.nure.ponomarev.web.form.RegistrationForm;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
+import ua.nure.ponomarev.web.page.Mapping;
 import ua.nure.ponomarev.web.transformer.Transformer;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
 
@@ -45,20 +46,19 @@ public class RegistrationCommand extends FrontCommand {
         List<String> errors = formValidator.validate(registrationForm);
         User user = Transformer.transformToUser(registrationForm);
         try {
-            if (userService.isExistPhoneNumber(user.getPhoneNumber())) {
-                errors.add("Phone number is already taken");
-            }
-            if (!errors.isEmpty()) {
-                logger.info("User made some registration mistakes");
-                request.setAttribute("errors", errors);
-                forward(Mapping.getPagePath(Mapping.Page.REGISTRATION_PAGE));
-            } else {
-                userService.add(user);
-                logger.info("User entered correct data");
-                forward("/authorization");
-            }
-        } catch (DBException e) {
+            userService.add(user);
+        } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
+        } catch (CredentialException e) {
+            errors.addAll(e.getErrors());
+        }
+        if (!errors.isEmpty()) {
+            logger.info("User made some registration mistakes");
+            request.setAttribute("errors", errors);
+            forward(Mapping.getPagePath(Mapping.Page.REGISTRATION_PAGE));
+        } else {
+            logger.info("User entered correct data");
+            redirect("/authorization");
         }
     }
 }

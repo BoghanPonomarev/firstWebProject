@@ -16,7 +16,7 @@ public class PaymentServiceImpl {
         this.transactionManager = transactionManager;
     }
 
-    public void put(Payment payment){
-       // transactionManager.doWithoutTransaction()//ADD work with currency and to db also
+    public void put(Payment payment) {
+        // transactionManager.doWithoutTransaction()//ADD work with currency and to db also
     }
 }

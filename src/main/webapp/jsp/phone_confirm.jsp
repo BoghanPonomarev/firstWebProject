@@ -10,10 +10,11 @@
     <script src="${contextPath}/js/pin_code.js"></script>
 </head>
 <body>
-    <span>Pin code</span>
-    <form class="auth-forms" method="post" action="${contextPath}/registration/send_code">
-        Phone number: <input type="text" id="phone_number" name="phone_number" value="${requestScope.get('phone_number')}" readonly><br>
-        Pin code: <input type="text" id="pin_code" name="pin_code" maxlength="5" required >
-        <input type="submit" value="submit">
-    </form>
+<span>Pin code</span>
+<form class="auth-forms" method="post" action="${contextPath}/registration/send_code">
+    Phone number: <input type="text" id="phone_number" name="phone_number" value="${requestScope.get('phone_number')}"
+                         readonly><br>
+    Pin code: <input type="text" id="pin_code" name="pin_code" maxlength="5" required>
+    <input type="submit" value="submit">
+</form>
 </body>

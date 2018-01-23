@@ -2,7 +2,7 @@ package ua.nure.ponomarev.web.command.admin;
 
 import ua.nure.ponomarev.entity.Account;
 import ua.nure.ponomarev.entity.User;
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.AccountService;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.command.FrontCommand;
@@ -25,25 +25,28 @@ import java.util.Map;
 public class AdminShowUsersCommand extends FrontCommand {
     private UserService userService;
     private AccountService accountService;
+
     @Override
     public void init(HttpServletRequest request, HttpServletResponse response
             , ServletContext servletContext, ServletConfig config) {
-        super.init(request, response,  servletContext, config);
+        super.init(request, response, servletContext, config);
         userService = (UserService) config.getServletContext().getAttribute("user_service");
         accountService = (AccountService) config.getServletContext().getAttribute("account_service");
     }
+
     @Override
     public void execute() throws ServletException, IOException {
-        putUsersToRequest(request,response);
+        putUsersToRequest(request, response);
         forward(Mapping.getPagePath(Mapping.Page.ADMIN_PAGE));
     }
+
     private void putUsersToRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Map<User,List<Account>> users = new HashMap<>();
+        Map<User, List<Account>> users = new HashMap<>();
         try {
-            for (User user:userService.getAll()) {
-                users.put(user,accountService.getAccounts(user.getId()));
+            for (User user : userService.getAll()) {
+                users.put(user, accountService.getAccounts(user.getId()));
             }
-        } catch (DBException e) {
+        } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
         request.setAttribute("users", users);

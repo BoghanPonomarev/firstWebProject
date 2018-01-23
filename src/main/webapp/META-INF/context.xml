@@ -5,5 +5,5 @@
               driverClassName="com.mysql.jdbc.Driver" defaultAutoCommit="true"
               defaultTransactionIsolation="REPEATABLE_READ"
               url="jdbc:mysql://localhost/webproject"
-              validationQuery = "Select 1"/>
+              validationQuery="Select 1"/>
 </Context>

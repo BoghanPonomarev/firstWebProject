@@ -1,7 +1,8 @@
 package ua.nure.ponomarev.service;
 
 import ua.nure.ponomarev.entity.Account;
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.exception.CredentialException;
+import ua.nure.ponomarev.exception.DbException;
 
 import java.util.List;
 
@@ -9,15 +10,13 @@ import java.util.List;
  * @author Bogdan_Ponamarev.
  */
 public interface AccountService {
-    List<Account> getAccounts(int id) throws DBException;
+    List<Account> getAccounts(int userId) throws DbException;
 
-    List<Account> getAccounts(String PhoneNumber) throws DBException;
+    boolean isExistCardNumber(String cardNumber) throws DbException;
 
-    void putAccount(Account account, int userId) throws DBException;
+    void putAccount(Account account, int userId) throws DbException, CredentialException;
 
-    boolean isExistAccount(int id,String cardNumber) throws DBException;
+    void delete(int accountId, String userPassword) throws DbException, CredentialException;
 
-    void delete(int accountId) throws DBException;
-
-    void setBanValue(int accountId,boolean value) throws DBException;
+    void setBanValue(int accountId, boolean value) throws DbException;
 }

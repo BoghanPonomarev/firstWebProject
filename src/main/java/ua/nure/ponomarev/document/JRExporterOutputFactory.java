@@ -1,7 +1,10 @@
 package ua.nure.ponomarev.document;
 
 
-import net.sf.jasperreports.export.*;
+import net.sf.jasperreports.export.ExporterOutput;
+import net.sf.jasperreports.export.SimpleHtmlExporterOutput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.SimpleXmlExporterOutput;
 
 import java.io.OutputStream;
 import java.util.NoSuchElementException;

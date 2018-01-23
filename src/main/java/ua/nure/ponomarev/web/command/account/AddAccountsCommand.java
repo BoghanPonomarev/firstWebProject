@@ -3,8 +3,8 @@ package ua.nure.ponomarev.web.command.account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.entity.Account;
-import ua.nure.ponomarev.exception.DBException;
-import ua.nure.ponomarev.exception.TransformationException;
+import ua.nure.ponomarev.exception.CredentialException;
+import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.AccountService;
 import ua.nure.ponomarev.web.command.FrontCommand;
 import ua.nure.ponomarev.web.form.AccountForm;
@@ -13,6 +13,7 @@ import ua.nure.ponomarev.web.handler.ExceptionHandler;
 import ua.nure.ponomarev.web.page.Mapping;
 import ua.nure.ponomarev.web.transformer.Transformer;
 import ua.nure.ponomarev.web.validator.AccountValidator;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -33,8 +34,8 @@ public class AddAccountsCommand extends FrontCommand {
     @Override
     public void init(HttpServletRequest request, HttpServletResponse response
             , ServletContext servletContext, ServletConfig config) {
-        super.init(request, response,  servletContext, config);
-        accountService= (AccountService) config.getServletContext().getAttribute("account_service");
+        super.init(request, response, servletContext, config);
+        accountService = (AccountService) config.getServletContext().getAttribute("account_service");
         accountValidator = (AccountValidator) config.getServletContext().getAttribute("account_validator");
         formMaker = (FormMaker) config.getServletContext().getAttribute("form_maker");
     }
@@ -44,22 +45,22 @@ public class AddAccountsCommand extends FrontCommand {
         AccountForm accountForm = formMaker.createAccountForm(request);
         List<String> errors = accountValidator.validate(accountForm);
         try {
-            request.setAttribute("errors", errors);
             Account account = Transformer.transformToAccount(accountForm);
-            if(accountService.isExistAccount(account.getId(),account.getCard().getCardNumber())){
-            errors.add("Card with this card number is already exist");
-            }
-            if(errors.isEmpty()) {
+            if (errors.isEmpty()) {
+                try {
                     accountService.putAccount(account, (int) request.getSession().getAttribute("userId"));
-                    redirect("/show_accounts");
+                    redirect(request.getContextPath() + "/accounts/show_accounts");
+                } catch (CredentialException e) {
+                    logger.error("User entered invalid data");
+                    errors.addAll(e.getErrors());
+                }
             }
-        } catch (DBException  e) {
-            ExceptionHandler.handleException(e,request,response);
-        } catch (TransformationException e) {
-            logger.error("There is something wrong in account transformation");
+        } catch (DbException e) {
+            ExceptionHandler.handleException(e, request, response);
         }
-        if(!errors.isEmpty()) {
-            forward(Mapping.getPagePath(Mapping.Page.ACCOUNTS_PAGE));
+        if (!errors.isEmpty()) {
+            request.setAttribute("errors", errors);
+            forward(Mapping.getPagePath(Mapping.Page.USER_ACCOUNTS_PAGE));
         }
     }
 

@@ -6,7 +6,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -18,7 +17,7 @@ public abstract class FrontCommand {
     protected ServletContext servletContext;
 
     public void init(HttpServletRequest request, HttpServletResponse response
-            , ServletContext servletContext, ServletConfig config){
+            , ServletContext servletContext, ServletConfig config) {
         this.request = request;
         this.response = response;
         this.servletContext = servletContext;
@@ -35,8 +34,4 @@ public abstract class FrontCommand {
         response.sendRedirect(path);
     }
 
-    public void include(String path) throws ServletException, IOException {
-        RequestDispatcher requestDispatcher = servletContext.getRequestDispatcher(path);
-        requestDispatcher.include(request, response);
-    }
 }

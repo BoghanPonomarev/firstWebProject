@@ -13,13 +13,13 @@ public class Token {
 
     private long time;
 
-    public Token(String identificationName,long timeMinuets,int data){
-        this.identificationData =identificationName;
-        this.time= System.currentTimeMillis()/60000 + timeMinuets;
+    public Token(String identificationName, long timeMinuets, int data) {
+        this.identificationData = identificationName;
+        this.time = System.currentTimeMillis() / 60000 + timeMinuets;
         this.data = data;
     }
 
-    public boolean isAlive(long currentTimeMinutes){
+    public boolean isAlive(long currentTimeMinutes) {
         return currentTimeMinutes < time;
     }
 
@@ -35,7 +35,7 @@ public class Token {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        return identificationData != null ? identificationData.equals(((Token)o).identificationData) : ((Token)o).identificationData == null;
+        return identificationData != null ? identificationData.equals(((Token) o).identificationData) : ((Token) o).identificationData == null;
     }
 
     @Override

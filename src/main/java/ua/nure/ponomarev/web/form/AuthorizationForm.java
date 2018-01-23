@@ -8,7 +8,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AuthorizationForm implements Form{
+public class AuthorizationForm implements Form {
     private String phoneNumber;
     private String password;
 }

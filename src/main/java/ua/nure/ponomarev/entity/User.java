@@ -18,7 +18,8 @@ public class User {
     private String email;
     private Role role;
     private boolean isBanned;
-    public enum Role{
+
+    public enum Role {
         USER,
         ADMIN,
         SUPER_ADMIN

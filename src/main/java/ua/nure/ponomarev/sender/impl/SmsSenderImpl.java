@@ -3,17 +3,19 @@ package ua.nure.ponomarev.sender.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.exception.LogicException;
-import ua.nure.ponomarev.exception.SMSSenderException;
+import ua.nure.ponomarev.exception.SmsSenderException;
 import ua.nure.ponomarev.sender.SmsSender;
-import java.io.*;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Properties;
 
 /**
  * @author Bogdan_Ponamarev.
  */
-
 public class SmsSenderImpl implements SmsSender {
     private static final String SMS_CHARSET = "UTF-8";
     private static Logger logger = LogManager.getLogger(SmsSenderImpl.class);
@@ -32,18 +34,18 @@ public class SmsSenderImpl implements SmsSender {
 
 
     @Override
-    public String sendPinCode(String phoneNumber, String massage) throws SMSSenderException {
+    public String sendPinCode(String phoneNumber, String massage) throws SmsSenderException {
         URL url;
         InputStream is = null;
-        InputStreamReader reader= null;
+        InputStreamReader reader = null;
         if (!properties.containsKey("mail.login")) {
             logger.error("Could not send mail notification because properties file not found");
-            throw new SMSSenderException("Dear user no we can`t send massage to you!\nWe give our apologise...", LogicException.ExceptionType.SERVER_EXCEPTION, new FileNotFoundException());
+            throw new SmsSenderException("Dear user no we can`t send massage to you!\nWe give our apologise...", LogicException.ExceptionType.SERVER_EXCEPTION, new FileNotFoundException());
         }
         try {
             url = new URL(composeUrl(phoneNumber, massage));
             //is = url.openStream();
-            if(Boolean.parseBoolean(properties.getProperty("phone.debug"))){
+            if (Boolean.parseBoolean(properties.getProperty("phone.debug"))) {
                 return "OK";
             }
             StringBuilder answer = new StringBuilder();
@@ -55,19 +57,19 @@ public class SmsSenderImpl implements SmsSender {
             return answer.toString();
         } catch (IOException e) {
             logger.error("Massage was`nt sent " + e);
-            throw new SMSSenderException("We give apologise but now we can`t send any sms"
+            throw new SmsSenderException("We give apologise but now we can`t send any sms"
                     , LogicException.ExceptionType.SERVER_EXCEPTION, e);
         } finally {
-                try {
-                    if(reader!=null) {
-                        reader.close();
-                    }
-                    if (is != null) {
-                        is.close();
-                    }
-                } catch (IOException e) {
-                    logger.error("Input stream was`nt closed");
+            try {
+                if (reader != null) {
+                    reader.close();
                 }
+                if (is != null) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                logger.error("Input stream was`nt closed");
+            }
         }
     }
 

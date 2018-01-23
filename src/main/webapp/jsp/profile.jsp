@@ -6,11 +6,17 @@
 <html>
 <head>
     <title>Profile</title>
+    <link href="${contextPath}/css/style.css" rel="stylesheet" type="text/css" media="all"/>
 </head>
 <body>
-<a href="${contextPath}/accounts/show_accounts">Accounts</a>
-<c:forEach items="${requestScope.parameters}" var="parametr">
-   <br> ${parametr.key} : ${parametr.value}
-</c:forEach>
+<div class="basix-container">
+    <jsp:include page="../html/dashboard.jsp"></jsp:include>
+    <div class="right-panel" id="right-panel">
+        <jsp:include page="../html/header.html"></jsp:include>
+        <c:forEach items="${requestScope.parameters}" var="parametr">
+            <br> ${parametr.key} : ${parametr.value}
+        </c:forEach>
+    </div>
+</div>
 </body>
 </html>

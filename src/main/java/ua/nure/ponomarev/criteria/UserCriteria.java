@@ -22,7 +22,7 @@ public class UserCriteria {
         addToCriteria("email", user.getEmail());
         addToCriteria("password", user.getPassword());
         addToCriteria("phone_number", user.getPhoneNumber());
-        addToCriteria("role",String.valueOf(user.getRole()));
+        addToCriteria("role", String.valueOf(user.getRole()));
     }
 
     public UserCriteria(User user, boolean isBanImportant) {

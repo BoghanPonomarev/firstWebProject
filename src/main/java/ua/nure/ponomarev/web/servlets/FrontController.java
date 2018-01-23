@@ -15,34 +15,35 @@ import java.io.IOException;
 /**
  * @author Bogdan_Ponamarev.
  */
-@WebServlet(name = "FrontController",urlPatterns = "/")
+@WebServlet(name = "FrontController", urlPatterns = "/")
 public class FrontController extends HttpServlet {
-    private static Logger logger= LogManager.getLogger(FrontController.class);
+    private static Logger logger = LogManager.getLogger(FrontController.class);
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    doGet(request,response);
+        doGet(request, response);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            FrontCommand command = makeCommand(request,response);
-            if(command!=null){
+            FrontCommand command = makeCommand(request, response);
+            if (command != null) {
                 command.execute();
-            }else {
+            } else {
                 response.sendError(404);
             }
         } catch (Exception e) {
-            logger.error("Command class can`t be created "+e);
+            logger.error("Command class can`t be created " + e);
             response.sendError(404);
         }
     }
 
     private FrontCommand makeCommand(HttpServletRequest request, HttpServletResponse response) throws IllegalAccessException, InstantiationException {
-        String contextPath=request.getContextPath();
+        String contextPath = request.getContextPath();
         String url = request.getRequestURI();
-        url = url.substring(url.indexOf(contextPath)+contextPath.length()+1);
+        url = url.substring(url.indexOf(contextPath) + contextPath.length() + 1);
         Class commandClass = Mapping.getCommand(url);
-        FrontCommand command = (FrontCommand)commandClass.newInstance();
-        command.init(request,response,getServletContext(),getServletConfig());
+        FrontCommand command = (FrontCommand) commandClass.newInstance();
+        command.init(request, response, getServletContext(), getServletConfig());
         return command;
     }
 }

@@ -24,7 +24,7 @@ function showPrompt(text, callback) {
         callback(value);
     }
 
-    form.onsubmit = function() {
+    form.onsubmit = function () {
         var value = form.elements.text.value;
         if (value === '') return false; // игнорировать пустой submit
 
@@ -32,11 +32,11 @@ function showPrompt(text, callback) {
         return false;
     };
 
-    form.elements.cancel.onclick = function() {
+    form.elements.cancel.onclick = function () {
         complete(null);
     };
 
-    document.onkeydown = function(e) {
+    document.onkeydown = function (e) {
         if (e.keyCode === 27) { // escape
             complete(null);
         }
@@ -45,14 +45,14 @@ function showPrompt(text, callback) {
     var lastElem = form.elements[form.elements.length - 1];
     var firstElem = form.elements[0];
 
-    lastElem.onkeydown = function(e) {
+    lastElem.onkeydown = function (e) {
         if (e.keyCode === 9 && !e.shiftKey) {
             firstElem.focus();
             return false;
         }
     };
 
-    firstElem.onkeydown = function(e) {
+    firstElem.onkeydown = function (e) {
         if (e.keyCode === 9 && e.shiftKey) {
             lastElem.focus();
             return false;
@@ -63,9 +63,11 @@ function showPrompt(text, callback) {
     container.style.display = 'block';
     form.elements.text.focus();
 }
+
 var element;
+
 function showWindow(id) {
-element = id;
-    showPrompt("Write your password:", function(value) {
+    element = id;
+    showPrompt("Write your password:", function (value) {
     });
 }

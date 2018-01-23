@@ -1,21 +1,29 @@
 package ua.nure.ponomarev.dao;
 
+import ua.nure.ponomarev.criteria.AccountCriteria;
 import ua.nure.ponomarev.criteria.UserCriteria;
 import ua.nure.ponomarev.entity.Account;
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.entity.User;
+import ua.nure.ponomarev.exception.DbException;
 
 import java.util.List;
+
 /**
  * @author Bogdan_Ponamarev.
  */
 public interface AccountDao {
-    List<Account> getAll(UserCriteria userCriteria) throws DBException;
+    List<Account> getAll(UserCriteria userCriteria) throws DbException;
 
-    void put(Account account, int userId) throws DBException;
+    List<Account> getAll(AccountCriteria accountCriteria) throws DbException;
 
-    void setBanOfAccount(boolean value,int oldAccountId) throws DBException;
+    User getUser(int accountId) throws DbException;
 
-    boolean isExist(int id,String cardNumber) throws DBException;
+    Account getAccount(AccountCriteria accountCriteria) throws DbException;
 
-    void delete(int id) throws DBException;
+    void put(Account account, int userId) throws DbException;
+
+    void setBanOfAccount(boolean value, int oldAccountId) throws DbException;
+
+    void delete(int id) throws DbException;
+
 }

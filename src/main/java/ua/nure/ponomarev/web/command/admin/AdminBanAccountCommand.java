@@ -1,8 +1,7 @@
 package ua.nure.ponomarev.web.command.admin;
 
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.AccountService;
-import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.command.FrontCommand;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
 
@@ -25,13 +24,14 @@ public class AdminBanAccountCommand extends FrontCommand {
         super.init(request, response, servletContext, config);
         accountService = (AccountService) config.getServletContext().getAttribute("account_service");
     }
+
     @Override
     public void execute() throws ServletException, IOException {
         String id = request.getParameter("account_id");
         try {
-            accountService.setBanValue(Integer.parseInt(id),!Boolean.parseBoolean(request.getParameter("ban_status")));
-        } catch (DBException e) {
-            ExceptionHandler.handleException(e,request,response);
+            accountService.setBanValue(Integer.parseInt(id), !Boolean.parseBoolean(request.getParameter("ban_status")));
+        } catch (DbException e) {
+            ExceptionHandler.handleException(e, request, response);
         }
         redirect("/show_users");
     }

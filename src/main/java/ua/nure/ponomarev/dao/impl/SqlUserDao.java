@@ -1,12 +1,12 @@
 package ua.nure.ponomarev.dao.impl;
 
-import ua.nure.ponomarev.criteria.UserCriteria;
-import ua.nure.ponomarev.dao.UserDao;
-import ua.nure.ponomarev.exception.DBException;
-import ua.nure.ponomarev.entity.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.nure.ponomarev.hash.Hash;
+import ua.nure.ponomarev.criteria.UserCriteria;
+import ua.nure.ponomarev.dao.UserDao;
+import ua.nure.ponomarev.entity.User;
+import ua.nure.ponomarev.exception.DbException;
+
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -19,12 +19,13 @@ import java.util.Map;
  */
 public class SqlUserDao implements UserDao {
     private static final String SQL_UPDATE_QUERY_TO_FILL = "UPDATE webproject.users SET ";
-    private static Logger logger = LogManager.getLogger(SqlUserDao.class);
     private static final String SQL_CREATE_QUERY = "INSERT INTO webproject.users (password,phone_number) VALUES (?,?)";
     private static final String SQL_SELECT_QUERY_TO_FILL = "SELECT * FROM webproject.users WHERE";
     private static final String SQL_GET_ALL_QUERY = "SELECT * FROM webproject.users";
     private static final String SQL_ACTIVATE_EMAIL_QUERY = "UPDATE webproject.users SET is_activated_email=false WHERE email = ?";
+    private static Logger logger = LogManager.getLogger(SqlUserDao.class);
     private SqlDaoConnectionManager connectionManager;
+
     public SqlUserDao(DataSource dataSource) {
         connectionManager = new SqlDaoConnectionManager(dataSource);
     }
@@ -32,10 +33,10 @@ public class SqlUserDao implements UserDao {
 
     /**
      * @return integer number that is an id of particular user , or -1 if result set was empty
-     * @throws DBException
+     * @throws DbException
      */
     @Override
-    public int put(User user) throws DBException {
+    public int put(User user) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
@@ -50,7 +51,7 @@ public class SqlUserDao implements UserDao {
             }
         } catch (SQLException ex) {
             logger.error("Could not create user", ex);
-            throw new DBException("Could not create user",DBException.ExceptionType.SERVER_EXCEPTION,ex);
+            throw new DbException("Could not create user", DbException.ExceptionType.SERVER_EXCEPTION, ex);
         } finally {
             connectionManager.closeResultSet(resultSet);
             connectionManager.closePrepareStatement(preparedStatement);
@@ -59,35 +60,37 @@ public class SqlUserDao implements UserDao {
     }
 
     @Override
-    public void set(UserCriteria userCriteria, int oldUserID) throws DBException {
-        PreparedStatement preparedStatement=null;
+    public void set(UserCriteria userCriteria, int oldUserID) throws DbException {
+        PreparedStatement preparedStatement = null;
         try {
-            Connection connection=connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(createUpdateQuery(userCriteria,oldUserID));
+            Connection connection = connectionManager.getConnection();
+            preparedStatement = connection.prepareStatement(createUpdateQuery(userCriteria, oldUserID));
             preparedStatement.execute();
         } catch (SQLException e) {
-           logger.error("can`t update user"+e);
-           throw new DBException("Currently, we can`t update your data");
-        }finally {
+            logger.error("can`t update user" + e);
+            throw new DbException("Currently, we can`t update your data");
+        } finally {
             connectionManager.closePrepareStatement(preparedStatement);
         }
     }
-   private String createUpdateQuery(UserCriteria userCriteria,int oldId){
-       StringBuilder stringBuilder = new StringBuilder(SQL_UPDATE_QUERY_TO_FILL);
-       boolean isPrevious = false;
-       Map<String, String> parameters = userCriteria.getCriteria();
-       for (String key : parameters.keySet()) {
-           if (parameters.get(key) != null) {
-               if (isPrevious) {
-                   stringBuilder.append(" , ");
-               }
-               stringBuilder.append(" ").append(key).append("=\'").append(parameters.get(key)).append('\'');
-               isPrevious = true;
-           }
-       }
-       return stringBuilder.append(" WHERE id=\'").append(oldId).append('\'').toString();
-   }
-    private User fillUser(ResultSet resultSet) throws DBException {
+
+    private String createUpdateQuery(UserCriteria userCriteria, int oldId) {
+        StringBuilder stringBuilder = new StringBuilder(SQL_UPDATE_QUERY_TO_FILL);
+        boolean isPrevious = false;
+        Map<String, String> parameters = userCriteria.getCriteria();
+        for (String key : parameters.keySet()) {
+            if (parameters.get(key) != null) {
+                if (isPrevious) {
+                    stringBuilder.append(" , ");
+                }
+                stringBuilder.append(" ").append(key).append("=\'").append(parameters.get(key)).append('\'');
+                isPrevious = true;
+            }
+        }
+        return stringBuilder.append(" WHERE id=\'").append(oldId).append('\'').toString();
+    }
+
+    private User fillUser(ResultSet resultSet) throws DbException {
         User user = null;
         try {
             if (resultSet.next()) {
@@ -104,7 +107,7 @@ public class SqlUserDao implements UserDao {
             }
         } catch (SQLException ex) {
             logger.error("Something wrong with data filling", ex);
-            throw new DBException("Something wrong with data filling",DBException.ExceptionType.SERVER_EXCEPTION,ex);
+            throw new DbException("Something wrong with data filling", DbException.ExceptionType.SERVER_EXCEPTION, ex);
         }
         return user;
     }
@@ -112,12 +115,13 @@ public class SqlUserDao implements UserDao {
     /**
      * give user with special criteria but only one
      * if there are more users it will give the first
+     *
      * @param userCriteria criteria of user
      * @return the first user, who is match to this criteria
-     * @throws DBException if there is some wrong with DB
+     * @throws DbException if there is some wrong with DB
      */
     @Override
-    public User get(UserCriteria userCriteria) throws DBException {
+    public User get(UserCriteria userCriteria) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
@@ -127,7 +131,7 @@ public class SqlUserDao implements UserDao {
             return fillUser(resultSet);
         } catch (SQLException ex) {
             logger.error("Could not get user", ex);
-            throw new DBException("Could not get user",DBException.ExceptionType.SERVER_EXCEPTION,ex);
+            throw new DbException("Could not get user", DbException.ExceptionType.SERVER_EXCEPTION, ex);
         } finally {
             connectionManager.closeResultSet(resultSet);
             connectionManager.closePrepareStatement(preparedStatement);
@@ -147,13 +151,13 @@ public class SqlUserDao implements UserDao {
                 isPrevious = true;
             }
         }
-        if(!isPrevious){
-            return stringBuilder.delete(stringBuilder.indexOf("WHERE"),stringBuilder.length()-1).toString();
+        if (!isPrevious) {
+            return stringBuilder.delete(stringBuilder.indexOf("WHERE"), stringBuilder.length() - 1).toString();
         }
         return stringBuilder.toString();
     }
 
-    public List<User> getAll(UserCriteria userCriteria) throws DBException{
+    public List<User> getAll(UserCriteria userCriteria) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<User> resultUsers = new ArrayList<>();
@@ -162,21 +166,22 @@ public class SqlUserDao implements UserDao {
             preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria));
             resultSet = preparedStatement.executeQuery();
             User user;
-             while((user = fillUser(resultSet))!=null){
-                 resultUsers.add(user);
-             }
+            while ((user = fillUser(resultSet)) != null) {
+                resultUsers.add(user);
+            }
         } catch (SQLException ex) {
             logger.error("Could not get user", ex);
-            throw new DBException("Could not get user",DBException.ExceptionType.SERVER_EXCEPTION,ex);
+            throw new DbException("Could not get user", DbException.ExceptionType.SERVER_EXCEPTION, ex);
         } finally {
             connectionManager.closeResultSet(resultSet);
             connectionManager.closePrepareStatement(preparedStatement);
         }
         return resultUsers;
     }
+
     @Override
-    public List<User> getAll() throws DBException {
-       return getAll(new UserCriteria(new User()));
+    public List<User> getAll() throws DbException {
+        return getAll(new UserCriteria(new User()));
     }
 
 

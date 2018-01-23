@@ -16,7 +16,6 @@ import java.util.Arrays;
 @WebServlet(name = "ReportServlet", urlPatterns = "/report/generate")
 public class ReportServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

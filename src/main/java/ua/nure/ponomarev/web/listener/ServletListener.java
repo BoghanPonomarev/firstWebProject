@@ -4,9 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.dao.impl.SqlAccountDao;
 import ua.nure.ponomarev.dao.impl.SqlUserDao;
-import ua.nure.ponomarev.hash.Hash;
-import ua.nure.ponomarev.hash.ShaHashImpl;
+import ua.nure.ponomarev.hash.HashGenerator;
+import ua.nure.ponomarev.hash.ShaHashGeneratorImpl;
+import ua.nure.ponomarev.sender.EmailSender;
 import ua.nure.ponomarev.sender.SmsSender;
+import ua.nure.ponomarev.sender.impl.EmailSenderImpl;
 import ua.nure.ponomarev.sender.impl.SmsSenderImpl;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.service.impl.AccountServiceImpl;
@@ -14,8 +16,6 @@ import ua.nure.ponomarev.service.impl.NotificationServiceImpl;
 import ua.nure.ponomarev.service.impl.UserServiceImpl;
 import ua.nure.ponomarev.transaction.TransactionManager;
 import ua.nure.ponomarev.web.form.FormMakerImpl;
-import ua.nure.ponomarev.sender.EmailSender;
-import ua.nure.ponomarev.sender.impl.EmailSenderImpl;
 import ua.nure.ponomarev.web.validator.AccountValidator;
 import ua.nure.ponomarev.web.validator.AuthorizationValidator;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
@@ -36,7 +36,7 @@ public class ServletListener implements ServletContextListener {
     @Resource(name = "jdbc/data_source")
     private DataSource dataSource;
     private TransactionManager transactionManager;
-    private Hash hash;
+    private HashGenerator hash = new ShaHashGeneratorImpl();
 
     public ServletListener() {
         logger.info("Application was started");
@@ -45,6 +45,7 @@ public class ServletListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         logger.info("Application is being initialized");
+        transactionManager = new TransactionManager(dataSource);
         ServletContext servletContext = sce.getServletContext();
         servletContext.setAttribute("data_source", dataSource);
         formMakerInitialized(servletContext);
@@ -56,7 +57,7 @@ public class ServletListener implements ServletContextListener {
 
     private void accountServiceInitialized(ServletContext servletContext) {
         servletContext.setAttribute("account_service", new AccountServiceImpl(new SqlAccountDao(dataSource)
-                , transactionManager));
+                , transactionManager, hash));
     }
 
     @Override
@@ -65,10 +66,8 @@ public class ServletListener implements ServletContextListener {
     }
 
     private void userServiceInitialized(ServletContext servletContext) {
-        transactionManager = new TransactionManager(dataSource);
-        hash = new ShaHashImpl();
-        servletContext.setAttribute("hash",hash);
-        UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource),hash);
+        servletContext.setAttribute("hash", hash);
+        UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource), hash);
         servletContext.setAttribute("user_service", userService);
     }
 

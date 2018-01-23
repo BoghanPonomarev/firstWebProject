@@ -8,12 +8,12 @@ import java.sql.Connection;
 public class SqlConnectionHolder {
     private static ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
 
-    public static Connection getConnection (){
+    public static Connection getConnection() {
         return threadLocal.get();
     }
 
-    public static void setConnection(Connection connection){
-        if(connection!=null) {
+    public static void setConnection(Connection connection) {
+        if (connection != null) {
             threadLocal.set(connection);
         }
     }

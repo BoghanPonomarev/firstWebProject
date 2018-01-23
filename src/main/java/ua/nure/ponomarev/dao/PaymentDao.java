@@ -1,7 +1,7 @@
 package ua.nure.ponomarev.dao;
 
 import ua.nure.ponomarev.entity.Payment;
-import ua.nure.ponomarev.exception.DBException;
+import ua.nure.ponomarev.exception.DbException;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * @author Bogdan_Ponamarev.
  */
 public interface PaymentDao {
-    void put(Payment payment) throws DBException;
+    void put(Payment payment) throws DbException;
 
-    List<Payment> getAll(int userId) throws DBException;
+    List<Payment> getAll(int userId) throws DbException;
 }

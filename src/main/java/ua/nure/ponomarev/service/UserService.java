@@ -1,28 +1,26 @@
 package ua.nure.ponomarev.service;
 
-import ua.nure.ponomarev.exception.DBException;
 import ua.nure.ponomarev.entity.User;
+import ua.nure.ponomarev.exception.CredentialException;
+import ua.nure.ponomarev.exception.DbException;
+
 import java.util.List;
+
 /**
  * @author Bogdan_Ponamarev.
  */
 public interface UserService {
 
-    int add(User user) throws DBException;
+    int add(User user) throws DbException, CredentialException;
 
-    boolean putEmail(String email,int id) throws DBException;
+    void putEmail(String email, int id) throws DbException, CredentialException;
 
-    User getUser(String phoneNumber,String password)throws DBException;
+    User getFullUser(User user) throws DbException, CredentialException;
 
-    User getUser(int id) throws DBException;
+    void setBanValue(int userId, boolean value) throws DbException;
 
-    void setBanValue(int userId,boolean value) throws DBException;
+    void setUserRole(int userId, User.Role role) throws DbException;
 
-    void setUserRole(int userId, User.Role role) throws DBException;
+    List<User> getAll(User.Role requesterRole) throws DbException;
 
-    List<User> getAll() throws DBException;
-
-    boolean isExistPhoneNumber(String phoneNumber) throws DBException;
-
-    boolean isExistEmail(String email) throws DBException;
 }
