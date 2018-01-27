@@ -7,8 +7,9 @@
     <title>Accounts</title>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <link href="${contextPath}/css/asking_for_delete.css" rel="stylesheet" type="text/css" media="all"/>
-    <script type="text/javascript" src="${contextPath}/js/add_account.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/account_validation.js"></script>
     <link href="${contextPath}/css/style.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href="${contextPath}/css/font.css" rel="stylesheet"/>
 </head>
 <body>
 <div class="basix-container">
@@ -92,7 +93,7 @@
                                         <li data-v-12201132="" data-v-49aa1870="" id="account_name_error2"
                                             style="display: none ;color:red"><i
                                                 data-v-12201132="" data-v-49aa1870=""
-                                        >Account must be within from 5 to 15 letters</i></li>
+                                        >Account must be within from 5 to 13 letters</i></li>
                                     </ul>
                                 </div>
                             </div>

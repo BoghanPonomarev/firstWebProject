@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.criteria.AccountCriteria;
 import ua.nure.ponomarev.criteria.UserCriteria;
 import ua.nure.ponomarev.dao.AccountDao;
+import ua.nure.ponomarev.dao.SqlDaoConnectionManager;
 import ua.nure.ponomarev.entity.Account;
 import ua.nure.ponomarev.entity.Account.Card;
 import ua.nure.ponomarev.entity.User;
@@ -22,17 +23,17 @@ import java.util.Map;
  * @author Bogdan_Ponamarev.
  */
 public class SqlAccountDao implements AccountDao {
+    private static Logger logger = LogManager.getLogger(SqlUserDao.class);
+    private SqlDaoConnectionManager connectionManager;
+    public static final String SQL_INSERT_CARD_QUERY = "INSERT INTO webproject.cards(number,end_date,CVV) VALUES (?,?,?)";
     private static final String SQL_QUERY_DELETE = "DELETE FROM webproject.accounts WHERE id=?";
-    private static final String SQL_SET_BAN_QUERY = "UPDATE webproject.accounts SET banned=? WHERE id=?";
     private static final String SQL_GET_ACCOUNT_QUERY_TO_FILL = "SELECT * FROM webproject.accounts WHERE id in " +
             "(SELECT account_id FROM webproject.users_accounts WHERE user_id in " +
             "(SELECT id FROM webproject.users WHERE ";
-    private static final String SQL_PUT_ACCOUNT_QUERY = "INSERT INTO webproject.accounts(card_number,card_end_date,CVV,name,card_amount,currency_id)" +
-            " VALUES(?,?,?,?,?,(SELECT id FROM webproject.currency WHERE name=?))";
+    private static final String SQL_PUT_ACCOUNT_QUERY = "INSERT INTO webproject.accounts(name,balance,currency_id,card_id)" +
+            " VALUES(?,?,(SELECT id FROM webproject.currency WHERE name=?),?)";
     private static final String SQL_PUT_ACCOUNT_AND_USER_ID_QUERY = "INSERT INTO webproject.users_accounts(user_id,account_id) VALUES(?,?)";
     private static final String SQL_SELECT_USER_BY_ACCOUNT_ID_QUERY = "SELECT * FROM webproject.users WHERE id in(SELECT user_id FROM webproject.users_accounts WHERE account_id=?)";
-    private static Logger logger = LogManager.getLogger(SqlUserDao.class);
-    private SqlDaoConnectionManager connectionManager;
 
     public SqlAccountDao(DataSource dataSource) {
         connectionManager = new SqlDaoConnectionManager(dataSource);
@@ -135,6 +136,13 @@ public class SqlAccountDao implements AccountDao {
                             .append("\')");
                     continue;
                 }
+                if (key.equals("card_number")) {
+                    stringBuilder.append(' ').append("card_id")
+                            .append(" in (SELECT id FROM webproject.cards WHERE number='")
+                            .append(parameters.get(key))
+                            .append("\')");
+                    continue;
+                }
                 stringBuilder.append(' ').append(key).append("=\'").append(parameters.get(key)).append('\'');
                 isPrevious = true;
             }
@@ -165,18 +173,22 @@ public class SqlAccountDao implements AccountDao {
                     "FROM webproject.currency WHERE id=\'" + resultSet.getInt("currency_id") + "\'");
             ResultSet currencyId = preparedStatement.executeQuery();
             currencyId.next();
-            Card tmpCard = new Account.Card().builder()
-                    .amount(BigDecimal.valueOf(resultSet.getInt("card_amount")))
-                    .cardNumber(resultSet.getString("card_number"))
-                    .validThru(resultSet.getDate("card_end_date").toLocalDate())
-                    .CVV(resultSet.getString("CVV"))
-                    .currency(currencyId.getString(1)).build();
+            ResultSet card = connection.prepareStatement(
+                    "SELECT * FROM webproject.cards WHERE id=\'"+resultSet.getInt("card_id")+"\'")
+                    .executeQuery();
+            card.next();
+            Account account = new Account().builder()
+                    .balance(BigDecimal.valueOf(resultSet.getInt("balance")))
+                    .card(new Card(card.getString("number"),card.getDate("end_date").toLocalDate()
+                            ,card.getString("CVV")))
+                    .currency(currencyId.getString("name"))
+                    .id( resultSet.getInt("id")).name(resultSet.getString("name"))
+                    .isBanned(resultSet.getBoolean("is_banned"))
+                    .isRequestedForUnban(resultSet.getBoolean("is_requested_for_unban")).build();
             connectionManager.closeResultSet(currencyId);
+            connectionManager.closeResultSet(card);
             connectionManager.closePrepareStatement(preparedStatement);
-            return new Account(tmpCard, resultSet.getInt("id")
-                    , resultSet.getString("name")
-                    , resultSet.getBoolean("banned")
-            , resultSet.getBoolean("is_requested_for_unban"));
+                return account;
         }
         return null;
     }
@@ -209,13 +221,12 @@ public class SqlAccountDao implements AccountDao {
         ResultSet resultSet = null;
         try {
             Connection connection = connectionManager.getConnection();
+            int id = createCard(account, connection);
             preparedStatement = connection.prepareStatement(SQL_PUT_ACCOUNT_QUERY, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, account.getCard().getCardNumber());
-            preparedStatement.setDate(2, Date.valueOf(account.getCard().getValidThru()));
-            preparedStatement.setString(3, account.getCard().getCVV());
-            preparedStatement.setString(4, account.getName());
-            preparedStatement.setDouble(5, account.getCard().getAmount().doubleValue());
-            preparedStatement.setString(6, account.getCard().getCurrency());
+            preparedStatement.setString(1, account.getName());
+            preparedStatement.setBigDecimal(2, account.getBalance());
+            preparedStatement.setString(3, account.getCurrency());
+            preparedStatement.setInt(4, id);
             preparedStatement.executeUpdate();
             resultSet = preparedStatement.getGeneratedKeys();
             if (resultSet.next()) {
@@ -235,23 +246,69 @@ public class SqlAccountDao implements AccountDao {
         }
     }
 
+    private int createCard(Account account, Connection connection) throws SQLException, DbException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        preparedStatement = connection.prepareStatement(SQL_INSERT_CARD_QUERY, PreparedStatement.RETURN_GENERATED_KEYS);
+        preparedStatement.setString(1, account.getCard().getCardNumber());
+        preparedStatement.setDate(2, Date.valueOf(account.getCard().getValidThru()));
+        preparedStatement.setString(3, account.getCard().getCVV());
+        preparedStatement.executeUpdate();
+        resultSet = preparedStatement.getGeneratedKeys();
+        try {
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            else {
+                return -1;
+            }
+        }finally {
+            connectionManager.closeResultSet(resultSet);
+            connectionManager.closePrepareStatement(preparedStatement);
+        }
+    }
+
     @Override
-    public void setBanOfAccount(boolean value, int oldAccountId) throws DbException {
+    public void setAccount(AccountCriteria accountCriteria, int oldAccountId) throws DbException {
         PreparedStatement preparedStatement = null;
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(SQL_SET_BAN_QUERY);
-            preparedStatement.setBoolean(1, value);
-            preparedStatement.setInt(2, oldAccountId);
+            preparedStatement = connection.prepareStatement(createUpdateQuery(accountCriteria, oldAccountId));
             preparedStatement.execute();
         } catch (SQLException e) {
-            logger.error("Can`t update account " + e);
-            throw new DbException("Sorry , now we can`t update your account data");
+            logger.error("Could not update account " + e);
+            throw new DbException("Could not update account");
         } finally {
             connectionManager.closePrepareStatement(preparedStatement);
         }
     }
 
+    private String createUpdateQuery(AccountCriteria accountCriteria, int oldId) {
+        StringBuilder stringBuilder = new StringBuilder("UPDATE webproject.accounts SET ");
+        boolean isPrevious = false;
+        Map<String, String> parameters = accountCriteria.getCriteria();
+        for (String key : parameters.keySet()) {
+            if (parameters.get(key) != null) {
+                if (isPrevious) {
+                    stringBuilder.append(" , ");
+                }
+                if (key.equals("currency_id")) {
+                    stringBuilder.append(' ').append(key)
+                            .append(" = (SELECT id FROM webproject.currency WHERE name='")
+                            .append(parameters.get(key))
+                            .append("\')");
+                    continue;
+                }
+                if (key.equals("card_number")) {
+                    isPrevious = false;
+                    continue;
+                }
+                stringBuilder.append(" ").append(key).append("=\'").append(parameters.get(key)).append('\'');
+                isPrevious = true;
+            }
+        }
+        return stringBuilder.append(" WHERE id=\'").append(oldId).append('\'').toString();
+    }
 
     @Override
     public void delete(int id) throws DbException {

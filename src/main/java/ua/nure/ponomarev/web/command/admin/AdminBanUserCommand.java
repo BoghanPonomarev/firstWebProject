@@ -33,6 +33,6 @@ public class AdminBanUserCommand extends FrontCommand {
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
-        redirect("/show_users");
+        redirect(servletContext.getContextPath()+"/user/profile?user_id="+id);
     }
 }

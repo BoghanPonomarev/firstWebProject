@@ -42,13 +42,34 @@ public class AdminShowUsersCommand extends FrontCommand {
 
     private void putUsersToRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map<User, List<Account>> users = new HashMap<>();
+        String page;
+        int numberOfPage=1;
+        if((page = request.getParameter("page"))!=null&&page.chars().allMatch(Character::isDigit)) {
+             numberOfPage = Integer.parseInt((String) request.getParameter("page"));
+        }
         try {
-            for (User user : userService.getAll()) {
+            for (User user : userService.getAll((User.Role)request.getSession()
+                            .getAttribute("userRole")
+                    ,numberOfPage)) {
                 users.put(user, accountService.getAccounts(user.getId()));
             }
+         paginationValidation(numberOfPage);
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
         request.setAttribute("users", users);
+        request.setAttribute("page",numberOfPage);
+    }
+    private void paginationValidation(int numberOfPage) throws DbException {
+        if(!userService.getAll((User.Role)request.getSession()
+                        .getAttribute("userRole")
+                ,numberOfPage+1).isEmpty()){
+            request.setAttribute("nextPage",servletContext.getContextPath()
+                    +"/admin/users?page="+(numberOfPage+1));
+        }
+        if(numberOfPage>1){
+            request.setAttribute("previousPage",servletContext.getContextPath()
+                    +"/admin/users?page="+(numberOfPage-1));
+        }
     }
 }

@@ -9,12 +9,17 @@ import java.time.LocalDate;
  * @author Bogdan_Ponamarev.
  */
 @Getter
+@Setter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class Account {
     private Card card;
     private int id;
     private String name;
-    private boolean banned;
+    private String currency;
+    private BigDecimal balance;
+    private boolean isBanned;
     private boolean isRequestedForUnban;
     public Account(int id, Card card) {
         this.id = id;
@@ -23,13 +28,11 @@ public class Account {
 
     @Getter
     @Setter
-    @Builder
+    @AllArgsConstructor
     @NoArgsConstructor
     public static class Card {
-        private BigDecimal amount;
         private String cardNumber;
         private LocalDate validThru;
         private String CVV;
-        private String currency;
     }
 }

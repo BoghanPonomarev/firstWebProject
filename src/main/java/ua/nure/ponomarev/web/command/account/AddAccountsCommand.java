@@ -7,7 +7,7 @@ import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.AccountService;
 import ua.nure.ponomarev.web.command.FrontCommand;
-import ua.nure.ponomarev.web.form.AccountForm;
+import ua.nure.ponomarev.web.form.impl.AccountForm;
 import ua.nure.ponomarev.web.form.FormMaker;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
 import ua.nure.ponomarev.web.page.Mapping;
@@ -49,7 +49,7 @@ public class AddAccountsCommand extends FrontCommand {
             if (errors.isEmpty()) {
                 try {
                     accountService.putAccount(account, (int) request.getSession().getAttribute("userId"));
-                    redirect(request.getContextPath() + "/accounts/show_accounts");
+                    redirect(request.getContextPath() + "/user/profile");
                 } catch (CredentialException e) {
                     logger.error("User entered invalid data");
                     errors.addAll(e.getErrors());
@@ -60,7 +60,7 @@ public class AddAccountsCommand extends FrontCommand {
         }
         if (!errors.isEmpty()) {
             request.setAttribute("errors", errors);
-            forward(Mapping.getPagePath(Mapping.Page.USER_ACCOUNTS_PAGE));
+            forward(Mapping.getPagePath(Mapping.Page.USER_ADD_ACCOUNT_PAGE));
         }
     }
 

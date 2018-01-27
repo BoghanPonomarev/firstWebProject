@@ -9,7 +9,11 @@ import java.util.List;
  * @author Bogdan_Ponamarev.
  */
 public interface PaymentDao {
-    void put(Payment payment) throws DbException;
+    Payment get(int id) throws DbException;
+
+    int put(Payment payment) throws DbException;
+
+    void deletePayment(int paymentId)throws DbException;
 
     List<Payment> getAll(int userId) throws DbException;
 }

@@ -7,6 +7,7 @@
     <title>Setting</title>
     <script src="${contextPath}/js/set_user_data.js"></script>
     <link href="${contextPath}/css/style.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href="${contextPath}/css/font.css" rel="stylesheet"/>
 </head>
 <body>
 <div class="basix-container">

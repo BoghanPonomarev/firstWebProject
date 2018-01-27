@@ -28,11 +28,12 @@ public class AdminBanAccountCommand extends FrontCommand {
     @Override
     public void execute() throws ServletException, IOException {
         String id = request.getParameter("account_id");
+        String user_id = request.getParameter("user_id");
         try {
             accountService.setBanValue(Integer.parseInt(id), !Boolean.parseBoolean(request.getParameter("ban_status")));
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
-        redirect("/show_users");
+        redirect(servletContext.getContextPath()+ "/user/profile?user_id="+user_id);
     }
 }

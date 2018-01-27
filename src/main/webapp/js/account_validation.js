@@ -114,7 +114,7 @@ function accountNameValidation(value) {
     else {
         document.getElementById("account_name_error1").style.display = "none";
     }
-    if (value.length < 5 || value.length > 15) {
+    if (value.length < 5 || value.length > 13) {
         isRedBlock = true;
         validity = false;
         document.getElementById("account_name_error2").style.display = "block";

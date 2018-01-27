@@ -3,10 +3,12 @@ package ua.nure.ponomarev.web.transformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.entity.Account;
+import ua.nure.ponomarev.entity.Payment;
 import ua.nure.ponomarev.entity.User;
-import ua.nure.ponomarev.web.form.AccountForm;
-import ua.nure.ponomarev.web.form.RegistrationForm;
-import ua.nure.ponomarev.web.form.UserForm;
+import ua.nure.ponomarev.web.form.impl.AccountForm;
+import ua.nure.ponomarev.web.form.impl.PaymentForm;
+import ua.nure.ponomarev.web.form.impl.RegistrationForm;
+import ua.nure.ponomarev.web.form.impl.UserForm;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
  * @author Bogdan_Ponamarev.
  */
 public class Transformer {
+    public static final String DEFAULT_CURRENCY = "USD";
     private static Logger logger = LogManager.getLogger(Transformer.class);
 
     public static User transformToUser(RegistrationForm registrationForm) {
@@ -38,11 +41,9 @@ public class Transformer {
 
     public static Account transformToAccount(AccountForm accountForm) {
         Account.Card card = new Account.Card();
-        if (accountForm.getAmount() == null || !accountForm.getAmount().chars().allMatch(Character::isDigit)) {
-            logger.info("Invalid amount data from user");
-            card.setAmount(BigDecimal.valueOf(0));
-        } else {
-            card.setAmount(BigDecimal.valueOf(Double.parseDouble(accountForm.getAmount())));
+        BigDecimal amount=new BigDecimal(0);
+        if (accountForm.getAmount() != null || accountForm.getAmount().chars().allMatch(Character::isDigit)) {
+           amount = BigDecimal.valueOf(Double.parseDouble(accountForm.getAmount()));
         }
         if (accountForm.getCardNumber() == null) {
             logger.info("Card number is null");
@@ -62,13 +63,12 @@ public class Transformer {
         } else {
             card.setValidThru(LocalDate.parse("20" + accountForm.getValidTrue() + "-01"));
         }
-        if (accountForm.getCurrency() == null) {
-            logger.info("Currency is null");
-            card.setCurrency("USD");
-        } else {
-            card.setCurrency(accountForm.getCurrency());
+        String currency= DEFAULT_CURRENCY;
+        if (accountForm.getCurrency() != null) {
+            currency = accountForm.getCurrency();
         }
-        return new Account(card, 0, accountForm.getName(), false);
+        return new Account().builder().card(card)
+                .id(0).name(accountForm.getName()).isBanned(false).isRequestedForUnban(false)
+                .currency(currency).balance(amount).build();
     }
-
 }

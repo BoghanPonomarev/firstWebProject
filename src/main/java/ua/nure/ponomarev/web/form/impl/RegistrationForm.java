@@ -1,7 +1,8 @@
-package ua.nure.ponomarev.web.form;
+package ua.nure.ponomarev.web.form.impl;
 
 import lombok.Getter;
 import lombok.Setter;
+import ua.nure.ponomarev.web.form.Form;
 
 /**
  * @author Bogdan_Ponamarev.

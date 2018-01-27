@@ -1,7 +1,8 @@
-package ua.nure.ponomarev.web.form;
+package ua.nure.ponomarev.web.form.impl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.web.form.FormMaker;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -57,5 +58,14 @@ public class FormMakerImpl implements FormMaker {
         return userForm;
     }
 
-
+    @Override
+    public PaymentForm createPaymentForm(HttpServletRequest request) {
+        PaymentForm paymentForm = new PaymentForm();
+        paymentForm.setAccountId(Integer.parseInt(request.getParameter("account_id")));
+        paymentForm.setAmount(request.getParameter("amount"));
+        paymentForm.setPassword(request.getParameter("password"));
+        paymentForm.setRecipientAccountIdentity(request.getParameter("recipient_identity"));
+        paymentForm.setCurrency(request.getParameter("currency"));
+        return paymentForm;
+    }
 }

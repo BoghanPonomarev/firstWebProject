@@ -1,6 +1,8 @@
 package ua.nure.ponomarev.web.form;
 
 
+import ua.nure.ponomarev.web.form.impl.*;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -14,4 +16,6 @@ public interface FormMaker {
     AccountForm createAccountForm(HttpServletRequest request);
 
     UserForm createUserForm(HttpServletRequest request);
+
+    PaymentForm createPaymentForm(HttpServletRequest request);
 }

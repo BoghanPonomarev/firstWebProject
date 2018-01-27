@@ -5,6 +5,7 @@
 <html>
 <head>
     <title>Exception</title>
+    <link href="${contextPath}/css/font.css" rel="stylesheet"/>
 </head>
 <body>
 <a href="${contextPath}/accounts/show_accounts">Accounts</a>

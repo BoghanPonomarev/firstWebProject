@@ -8,7 +8,7 @@ import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.command.FrontCommand;
 import ua.nure.ponomarev.web.form.FormMaker;
-import ua.nure.ponomarev.web.form.RegistrationForm;
+import ua.nure.ponomarev.web.form.impl.RegistrationForm;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
 import ua.nure.ponomarev.web.page.Mapping;
 import ua.nure.ponomarev.web.transformer.Transformer;

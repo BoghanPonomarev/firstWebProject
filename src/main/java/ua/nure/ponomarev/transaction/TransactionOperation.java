@@ -1,5 +1,6 @@
 package ua.nure.ponomarev.transaction;
 
+import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
 
 /**

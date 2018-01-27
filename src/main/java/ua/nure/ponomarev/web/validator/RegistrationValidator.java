@@ -1,6 +1,6 @@
 package ua.nure.ponomarev.web.validator;
 
-import ua.nure.ponomarev.web.form.RegistrationForm;
+import ua.nure.ponomarev.web.form.impl.RegistrationForm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class RegistrationValidator implements Validator<RegistrationForm> {
         return errors;
     }
 
-    public void phoneNumberValidation(List<String> errors, String phoneNumber) {
+    private void phoneNumberValidation(List<String> errors, String phoneNumber) {
         Matcher matcher = PHONE_NUMBER_PATTERN.matcher(phoneNumber);
         if (!matcher.matches()) {
             errors.add("Phone number is not correct");
@@ -43,7 +43,7 @@ public class RegistrationValidator implements Validator<RegistrationForm> {
         }
     }
 
-    public void passwordValidator(List<String> errors, String password, String secondPas) {
+    private void passwordValidator(List<String> errors, String password, String secondPas) {
         Matcher firstPasMatcher = PASSWORD_PATTERN.matcher(password);
         if (!password.equals(secondPas)) {
             errors.add("Passwords are`nt equals");

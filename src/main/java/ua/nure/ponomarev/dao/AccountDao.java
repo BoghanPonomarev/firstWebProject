@@ -22,7 +22,7 @@ public interface AccountDao {
 
     void put(Account account, int userId) throws DbException;
 
-    void setBanOfAccount(boolean value, int oldAccountId) throws DbException;
+    void setAccount(AccountCriteria accountCriteria, int oldAccountId)throws DbException;
 
     void delete(int id) throws DbException;
 

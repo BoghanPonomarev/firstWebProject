@@ -2,7 +2,11 @@ package ua.nure.ponomarev.web.listener;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.currency.CurrencyManagerImpl;
+import ua.nure.ponomarev.dao.AccountDao;
+import ua.nure.ponomarev.dao.impl.CurrencyDaoImpl;
 import ua.nure.ponomarev.dao.impl.SqlAccountDao;
+import ua.nure.ponomarev.dao.impl.SqlPaymetDao;
 import ua.nure.ponomarev.dao.impl.SqlUserDao;
 import ua.nure.ponomarev.hash.HashGenerator;
 import ua.nure.ponomarev.hash.ShaHashGeneratorImpl;
@@ -11,13 +15,12 @@ import ua.nure.ponomarev.sender.SmsSender;
 import ua.nure.ponomarev.sender.impl.EmailSenderImpl;
 import ua.nure.ponomarev.sender.impl.SmsSenderImpl;
 import ua.nure.ponomarev.service.UserService;
-import ua.nure.ponomarev.service.impl.AccountServiceImpl;
-import ua.nure.ponomarev.service.impl.NotificationServiceImpl;
-import ua.nure.ponomarev.service.impl.UserServiceImpl;
+import ua.nure.ponomarev.service.impl.*;
 import ua.nure.ponomarev.transaction.TransactionManager;
-import ua.nure.ponomarev.web.form.FormMakerImpl;
+import ua.nure.ponomarev.web.form.impl.FormMakerImpl;
 import ua.nure.ponomarev.web.validator.AccountValidator;
 import ua.nure.ponomarev.web.validator.AuthorizationValidator;
+import ua.nure.ponomarev.web.validator.PaymentValidator;
 import ua.nure.ponomarev.web.validator.RegistrationValidator;
 
 import javax.annotation.Resource;
@@ -37,6 +40,7 @@ public class ServletListener implements ServletContextListener {
     private DataSource dataSource;
     private TransactionManager transactionManager;
     private HashGenerator hash = new ShaHashGeneratorImpl();
+    private AccountDao accountDao;
 
     public ServletListener() {
         logger.info("Application was started");
@@ -48,16 +52,14 @@ public class ServletListener implements ServletContextListener {
         transactionManager = new TransactionManager(dataSource);
         ServletContext servletContext = sce.getServletContext();
         servletContext.setAttribute("data_source", dataSource);
+        currencyServiceInitialized(servletContext);
         formMakerInitialized(servletContext);
         userServiceInitialized(servletContext);
         notificationServiceInitialized(servletContext);
         accountServiceInitialized(servletContext);
+        paymentServiceInitialized(servletContext);
         registrationValidatorInitialized(servletContext);
-    }
 
-    private void accountServiceInitialized(ServletContext servletContext) {
-        servletContext.setAttribute("account_service", new AccountServiceImpl(new SqlAccountDao(dataSource)
-                , transactionManager, hash));
     }
 
     @Override
@@ -65,10 +67,28 @@ public class ServletListener implements ServletContextListener {
         logger.info("Application was destroyed");
     }
 
+    private void paymentServiceInitialized(ServletContext servletContext) {
+        servletContext.setAttribute("payment_service", new PaymentServiceImpl(
+                transactionManager, new SqlPaymetDao(dataSource), accountDao
+                , new CurrencyManagerImpl(new CurrencyDaoImpl(dataSource))
+        ));
+    }
+
+    private void accountServiceInitialized(ServletContext servletContext) {
+        accountDao = new SqlAccountDao(dataSource);
+        servletContext.setAttribute("account_service", new AccountServiceImpl(accountDao
+                , transactionManager, hash));
+    }
+
     private void userServiceInitialized(ServletContext servletContext) {
         servletContext.setAttribute("hash", hash);
         UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource), hash);
         servletContext.setAttribute("user_service", userService);
+    }
+
+    private void currencyServiceInitialized(ServletContext servletContext) {
+        servletContext.setAttribute("currency_service"
+                , new CurrencyServiceImpl(transactionManager,new CurrencyDaoImpl(dataSource)));
     }
 
     private void notificationServiceInitialized(ServletContext servletContext) {
@@ -85,6 +105,7 @@ public class ServletListener implements ServletContextListener {
         servletContext.setAttribute("registration_validator", new RegistrationValidator());
         servletContext.setAttribute("authorization_validator", new AuthorizationValidator());
         servletContext.setAttribute("account_validator", new AccountValidator());
+        servletContext.setAttribute("payment_validator", new PaymentValidator());
     }
 
 }

@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private TransactionManager transaction;
     private UserDao userDao;
     private HashGenerator hash;
-
+    private static final int QUANTITY_OF_ONE_USER_PAGE = 3;
     public UserServiceImpl(TransactionManager transaction, UserDao userDao, HashGenerator hash) {
         this.transaction = transaction;
         this.userDao = userDao;
@@ -99,7 +99,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getFullUser(User user) throws DbException, CredentialException {
         User resUser = transaction.doWithTransaction(() -> {
-            user.setPassword(hashUserPassword(user.getPassword()));
+            if(user.getPassword()!=null) {
+                user.setPassword(hashUserPassword(user.getPassword()));
+            }
             return userDao.get(new UserCriteria(user));
         });
         if (resUser == null) {
@@ -132,18 +134,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll(User.Role requesterRole) throws DbException {
+    public List<User> getAll(User.Role requesterRole,int page,boolean isOnlyBanned) throws DbException {
         User user = new User();
         return transaction.doWithTransaction(() ->
         {
             List<User> superAdminList = new ArrayList<>();
             user.setRole(User.Role.USER);
-            superAdminList.addAll(userDao.getAll(new UserCriteria(user)));
+            if(isOnlyBanned){
+                user.setBanned(true);
+            }
+            superAdminList.addAll(userDao.getAll(new UserCriteria(user),(page-1)*QUANTITY_OF_ONE_USER_PAGE,QUANTITY_OF_ONE_USER_PAGE));
             if (requesterRole.equals(User.Role.SUPER_ADMIN)) {
                 user.setRole(User.Role.ADMIN);
-                superAdminList.addAll(userDao.getAll(new UserCriteria(user)));
+                superAdminList.addAll(userDao.getAll(new UserCriteria(user),(page-1)*QUANTITY_OF_ONE_USER_PAGE,QUANTITY_OF_ONE_USER_PAGE));
             }
             return superAdminList;
         });
+    }
+    @Override
+    public List<User> getAll(User.Role requesterRole,int page) throws DbException {
+       return getAll(requesterRole,page,false);
     }
 }

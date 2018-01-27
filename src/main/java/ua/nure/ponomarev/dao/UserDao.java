@@ -18,7 +18,7 @@ public interface UserDao {
 
     User get(UserCriteria userCriteria) throws DbException;
 
-    List<User> getAll() throws DbException;
+    List<User> getAll(int startCount,int quantity) throws DbException;
 
-    List<User> getAll(UserCriteria userCriteria) throws DbException;
+    List<User> getAll(UserCriteria userCriteria,int startCount,int quantity) throws DbException;
 }

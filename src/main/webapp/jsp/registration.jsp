@@ -11,6 +11,7 @@
     <link type="text/css" rel="stylesheet"
           href="blob:http://fine-process.surge.sh/776d45d9-823d-4c51-8065-54f3213006f0">
     <link href="${contextPath}/css/style.css" rel="stylesheet" type="text/css" media="all"/>
+    <link href="${contextPath}/css/font.css" rel="stylesheet"/>
     <style>li {
         display: none;
         color: red

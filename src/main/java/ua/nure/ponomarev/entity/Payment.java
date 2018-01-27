@@ -15,10 +15,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Payment {
     private int id;
-    private int userId;
-    private int accountId;
+    private int recipientId;
+    private int senderId;
     private LocalDateTime date;
     private BigDecimal amount;
-    private String sender;
-    private String recipient;
+    private Status status;
+    private String currency;
+    private Type type;
+    public enum Type{
+        INCOMING,
+        OUTGOING
+    }
+    public enum Status{
+        PREPARED,
+        SENT
+    }
 }

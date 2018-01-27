@@ -1,6 +1,6 @@
 package ua.nure.ponomarev.web.validator;
 
-import ua.nure.ponomarev.web.form.AccountForm;
+import ua.nure.ponomarev.web.form.impl.AccountForm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +14,8 @@ public class AccountValidator implements Validator<AccountForm> {
     private static final Pattern AMOUNT_PATTERN = Pattern.compile("[0-9]{0,10}\\.?[0-9]+");
     private static final Pattern CVV_PATTERN = Pattern.compile("\\d{3}");
     private static final Pattern DATE_PATTERN = Pattern.compile("\\d{2}-\\d{2}");
-    private static final Pattern CARD_NUMBER_PATTERN = Pattern.compile("\\d{13,16}");
-    private static final Pattern ACCOUNT_NAME_PATTERN = Pattern.compile("[A-Za-zа-яА-я0-9\\- ]+");
+    private static final Pattern CARD_NUMBER_PATTERN = Pattern.compile("\\d{14,16}");
+    private static final Pattern ACCOUNT_NAME_PATTERN = Pattern.compile("[A-Za-zа-яА-я0-9\\-]{3,13}");
 
     @Override
     public List<String> validate(AccountForm form) {

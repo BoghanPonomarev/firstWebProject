@@ -1,6 +1,7 @@
-package ua.nure.ponomarev.web.form;
+package ua.nure.ponomarev.web.form.impl;
 
 import lombok.*;
+import ua.nure.ponomarev.web.form.Form;
 
 /**
  * @author Bogdan_Ponamarev.

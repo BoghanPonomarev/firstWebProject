@@ -7,7 +7,7 @@ import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.web.command.FrontCommand;
-import ua.nure.ponomarev.web.form.AuthorizationForm;
+import ua.nure.ponomarev.web.form.impl.AuthorizationForm;
 import ua.nure.ponomarev.web.form.FormMaker;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
 import ua.nure.ponomarev.web.page.Mapping;
@@ -50,7 +50,7 @@ public class AuthorizationCheckCommand extends FrontCommand {
             user = userService.getFullUser(Transformer.transformToUser(formMaker.createUserForm(request)));
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("userRole", user.getRole());
-            forward("/accounts/show_accounts");
+            forward("/user/profile");
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         } catch (CredentialException e) {
@@ -59,7 +59,7 @@ public class AuthorizationCheckCommand extends FrontCommand {
         if (!errors.isEmpty()) {
             logger.info("User made some authorization mistakes");
             request.setAttribute("errors", errors);
-            forward(Mapping.getPagePath(Mapping.Page.AUTHORIZATION_PAGE));
+            forward(Mapping.getPagePath(Mapping.Page.USER_PROFILE_PAGE));
         }
 
     }

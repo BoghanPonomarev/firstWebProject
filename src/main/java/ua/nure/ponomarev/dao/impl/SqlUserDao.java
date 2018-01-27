@@ -3,6 +3,7 @@ package ua.nure.ponomarev.dao.impl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.nure.ponomarev.criteria.UserCriteria;
+import ua.nure.ponomarev.dao.SqlDaoConnectionManager;
 import ua.nure.ponomarev.dao.UserDao;
 import ua.nure.ponomarev.entity.User;
 import ua.nure.ponomarev.exception.DbException;
@@ -21,8 +22,6 @@ public class SqlUserDao implements UserDao {
     private static final String SQL_UPDATE_QUERY_TO_FILL = "UPDATE webproject.users SET ";
     private static final String SQL_CREATE_QUERY = "INSERT INTO webproject.users (password,phone_number) VALUES (?,?)";
     private static final String SQL_SELECT_QUERY_TO_FILL = "SELECT * FROM webproject.users WHERE";
-    private static final String SQL_GET_ALL_QUERY = "SELECT * FROM webproject.users";
-    private static final String SQL_ACTIVATE_EMAIL_QUERY = "UPDATE webproject.users SET is_activated_email=false WHERE email = ?";
     private static Logger logger = LogManager.getLogger(SqlUserDao.class);
     private SqlDaoConnectionManager connectionManager;
 
@@ -156,14 +155,15 @@ public class SqlUserDao implements UserDao {
         }
         return stringBuilder.toString();
     }
-
-    public List<User> getAll(UserCriteria userCriteria) throws DbException {
+    @Override
+    public List<User> getAll(UserCriteria userCriteria,int startCount,int quantity) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<User> resultUsers = new ArrayList<>();
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria));
+            preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria) + "LIMIT "
+                    +startCount+","+quantity);
             resultSet = preparedStatement.executeQuery();
             User user;
             while ((user = fillUser(resultSet)) != null) {
@@ -180,8 +180,8 @@ public class SqlUserDao implements UserDao {
     }
 
     @Override
-    public List<User> getAll() throws DbException {
-        return getAll(new UserCriteria(new User()));
+    public List<User> getAll(int startCount,int quantity) throws DbException {
+        return getAll(new UserCriteria(new User()),startCount,quantity);
     }
 
 

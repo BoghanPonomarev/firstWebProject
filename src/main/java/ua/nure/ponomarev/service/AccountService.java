@@ -4,6 +4,7 @@ import ua.nure.ponomarev.entity.Account;
 import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,4 +20,6 @@ public interface AccountService {
     void delete(int accountId, String userPassword) throws DbException, CredentialException;
 
     void setBanValue(int accountId, boolean value) throws DbException;
+
+    void changeAmount(int AccountId, BigDecimal sum) throws DbException;
 }

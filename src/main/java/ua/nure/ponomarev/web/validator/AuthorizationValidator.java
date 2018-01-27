@@ -1,6 +1,6 @@
 package ua.nure.ponomarev.web.validator;
 
-import ua.nure.ponomarev.web.form.AuthorizationForm;
+import ua.nure.ponomarev.web.form.impl.AuthorizationForm;
 
 import java.util.ArrayList;
 import java.util.List;

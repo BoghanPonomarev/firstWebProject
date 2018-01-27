@@ -21,6 +21,7 @@ public interface UserService {
 
     void setUserRole(int userId, User.Role role) throws DbException;
 
-    List<User> getAll(User.Role requesterRole) throws DbException;
+    List<User> getAll(User.Role requesterRole,int page,boolean isOnlyBanned) throws DbException;
 
+    List<User> getAll(User.Role requesterRole,int page) throws DbException;
 }
