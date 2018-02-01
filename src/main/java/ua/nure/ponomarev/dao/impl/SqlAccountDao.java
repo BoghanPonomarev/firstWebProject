@@ -25,7 +25,7 @@ import java.util.Map;
 public class SqlAccountDao implements AccountDao {
     private static Logger logger = LogManager.getLogger(SqlUserDao.class);
     private SqlDaoConnectionManager connectionManager;
-    public static final String SQL_INSERT_CARD_QUERY = "INSERT INTO webproject.cards(number,end_date,CVV) VALUES (?,?,?)";
+    private static final String SQL_INSERT_CARD_QUERY = "INSERT INTO webproject.cards(number,end_date,CVV) VALUES (?,?,?)";
     private static final String SQL_QUERY_DELETE = "DELETE FROM webproject.accounts WHERE id=?";
     private static final String SQL_GET_ACCOUNT_QUERY_TO_FILL = "SELECT * FROM webproject.accounts WHERE id in " +
             "(SELECT account_id FROM webproject.users_accounts WHERE user_id in " +
@@ -40,13 +40,13 @@ public class SqlAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Account> getAll(UserCriteria userCriteria) throws DbException {
+    public List<Account> getAll(UserCriteria userCriteria,String sortedColumn) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Account> resultList = new ArrayList<>();
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(createSelectUserQuery(userCriteria));
+            preparedStatement = connection.prepareStatement(createSelectUserQuery(userCriteria)+ "ORDER BY "+ sortedColumn);
             resultSet = preparedStatement.executeQuery();
             Account account;
             while ((account = fillAccount(resultSet, connection)) != null) {
@@ -63,13 +63,13 @@ public class SqlAccountDao implements AccountDao {
     }
 
     @Override
-    public List<Account> getAll(AccountCriteria accountCriteria) throws DbException {
+    public List<Account> getAll(AccountCriteria accountCriteria,String sortedColumn) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Account> resultAccounts = new ArrayList<>();
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(createSelectQuery(accountCriteria));
+            preparedStatement = connection.prepareStatement(createSelectQuery(accountCriteria)+ "ORDER BY "+ sortedColumn);
             resultSet = preparedStatement.executeQuery();
             Account account;
             while ((account = fillAccount(resultSet, connection)) != null) {
@@ -158,7 +158,7 @@ public class SqlAccountDao implements AccountDao {
         for (String key : parameters.keySet()) {
             if (parameters.get(key) != null) {
                 if (isPrevious) {
-                    stringBuilder.append(" and");
+                    stringBuilder.append(" and ");
                 }
                 stringBuilder.append(" ").append(key).append("=\'").append(parameters.get(key)).append('\'');
                 isPrevious = true;
@@ -319,8 +319,8 @@ public class SqlAccountDao implements AccountDao {
             preparedStatement.setInt(1, id);
             preparedStatement.execute();
         } catch (SQLException e) {
-            logger.error("Can`t delete account" + e);
-            throw new DbException("Sorry but now we can`t delete your account,we give our apologise");
+            logger.error("Can`t remove account" + e);
+            throw new DbException("Sorry but now we can`t remove your account,we give our apologise");
         } finally {
             connectionManager.closePrepareStatement(preparedStatement);
         }

@@ -5,6 +5,7 @@ import ua.nure.ponomarev.entity.User;
 import ua.nure.ponomarev.exception.DbException;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Bogdan_Ponamarev.
@@ -13,6 +14,10 @@ import java.util.List;
 
 public interface UserDao {
     int put(User user) throws DbException;
+
+    void setLanguage(int userId,Locale language) throws DbException;
+
+    Locale getLanguage(int userId) throws DbException;
 
     void set(UserCriteria userCriteria, int oldUserID) throws DbException;
 

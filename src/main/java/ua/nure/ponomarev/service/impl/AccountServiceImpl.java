@@ -2,12 +2,14 @@ package ua.nure.ponomarev.service.impl;
 
 import ua.nure.ponomarev.criteria.AccountCriteria;
 import ua.nure.ponomarev.criteria.UserCriteria;
+import ua.nure.ponomarev.currency.CurrencyManager;
 import ua.nure.ponomarev.dao.AccountDao;
 import ua.nure.ponomarev.entity.Account;
 import ua.nure.ponomarev.entity.User;
 import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.hash.HashGenerator;
+import ua.nure.ponomarev.holder.RequestedAccountHolder;
 import ua.nure.ponomarev.service.AccountService;
 import ua.nure.ponomarev.transaction.TransactionManager;
 
@@ -22,22 +24,77 @@ public class AccountServiceImpl implements AccountService {
     private TransactionManager transactionManager;
     private AccountDao accountDao;
     private HashGenerator hashGenerator;
+    private RequestedAccountHolder requestedAccountHolder;
     private static final int MAX_SUM_OF_ACCOUNT = 1000000;
     private static final int MIN_SUM_OF_ACCOUNT = 0;
+    private CurrencyManager currencyManager;
     public AccountServiceImpl(AccountDao accountDao, TransactionManager transactionManager
-            , HashGenerator hashGenerator) {
+            , HashGenerator hashGenerator, CurrencyManager currencyManager
+            , RequestedAccountHolder requestedAccountHolder) {
         this.accountDao = accountDao;
         this.transactionManager = transactionManager;
         this.hashGenerator = hashGenerator;
+        this.currencyManager = currencyManager;
+        this.requestedAccountHolder= requestedAccountHolder;
     }
 
     @Override
-    public List<Account> getAccounts(int userId) throws DbException {
+    public List<Account> getAccounts(int userId,SortStrategy sortStrategy) throws DbException {
         return transactionManager.doWithTransaction(() -> {
             User user = new User();
             user.setId(userId);
-            return accountDao.getAll(new UserCriteria(user));
+            String sortedColumn="id";
+            if(sortStrategy!=null) {
+                if (sortStrategy == SortStrategy.BALANCE) {
+                    sortedColumn = "balance";
+                }
+                if (sortStrategy == SortStrategy.NAME) {
+                    sortedColumn = "name";
+                }
+            }
+            return accountDao.getAll(new UserCriteria(user),sortedColumn);
         });
+    }
+
+    @Override
+    public Account get(int accountId) throws DbException {
+        return transactionManager.doWithTransaction(()->{
+            Account account = new Account(accountId,null);
+            return accountDao.getAccount(new AccountCriteria(account,false,false));
+        });
+    }
+
+    @Override
+    public void replenishAccount(BigDecimal amount, String currency, String accountName) throws DbException, CredentialException {
+        List<String> errors = new ArrayList<>();
+        try{
+        transactionManager.doWithTransaction(()->{
+            Account account = new Account(0,new Account.Card());
+            account.setName(accountName);
+            account = accountDao.getAccount(new AccountCriteria(account,false,false));
+            if(account==null){
+                errors.add("Account dose`nt exist");
+                throw new DbException("Thrown exception");
+            }
+            BigDecimal sum = amount;
+            if(!account.getCurrency().equals(currency)){
+               sum =  currencyManager.convertCurrency(amount,currency,account.getCurrency());
+            }
+            if(account.getBalance().add(sum).doubleValue()>(double)MAX_SUM_OF_ACCOUNT){
+                errors.add("Your account can not be processed because you reached the maximum amount of money on your account");
+                throw new DbException("Thrown exception");
+            }
+            account.setBalance(account.getBalance().add(sum));
+            accountDao.setAccount(new AccountCriteria(account,false,false),account.getId());
+            return null;
+        });}catch (DbException e){
+            if (e.getMessage().equals("Thrown exception")){
+                throw new CredentialException(errors);
+            }else{
+                throw e;
+            }
+        }
+
     }
 
     @Override
@@ -57,6 +114,17 @@ public class AccountServiceImpl implements AccountService {
         if (isExistAccount(account.getId(), account.getCard().getCardNumber())) {
             errors.add("Card with this card number is already exist");
         }
+        Account accountName = transactionManager.doWithTransaction(()->{
+            Account accountNameCheck = new Account();
+            accountNameCheck.setName(account.getName());
+            return accountDao.getAccount(new AccountCriteria(accountNameCheck,false,false));
+        });
+        for(Account ac:getAccounts(userId,SortStrategy.ID)) {
+            if(accountName.getName().equals(ac.getName())) {
+                errors.add("You almost have account with this name");
+            }
+        }
+
         if (!errors.isEmpty()) {
             throw new CredentialException(errors);
         }
@@ -92,36 +160,32 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void setBanValue(int accountId, boolean value) throws DbException {
+    public void setBanValue(int accountId) throws DbException {
         transactionManager.doWithoutTransaction(() -> {
+            requestedAccountHolder.remove(accountId);
             Account account = new Account(accountId,new Account.Card());
             account = accountDao.getAccount(new AccountCriteria(account,false,false));
             account.setBanned(!account.isBanned());
-            accountDao.setAccount(new AccountCriteria(account,true,false), accountId);
+            account.setRequestedForUnban(false);
+            accountDao.setAccount(new AccountCriteria(account,true,true), accountId);
             return null;
         });
     }
-
-    @Override
-    public void changeAmount(int accountId, BigDecimal sum) throws DbException {
-        List<String> errors = new ArrayList<>();
-        Account account =new Account(accountId,new Account.Card());
-        Account resAccount = transactionManager.doWithTransaction(()->{
-            return accountDao.getAccount(new AccountCriteria(account,false,false));
-
-        });
-        if(resAccount.getBalance().add(sum).doubleValue()>MAX_SUM_OF_ACCOUNT){
-            throw  new DbException("The account exceeds the limit of money on the account");
+@Override
+    public void setRequestedValue(int accountId)throws DbException,CredentialException{
+        if(requestedAccountHolder.isAlreadyRequested(accountId)){
+            List<String> errors = new ArrayList<>();
+            errors.add("Account already requested,or denied,try request tomorrow");
+            throw new CredentialException(errors);
         }
-        if(resAccount.getBalance().add(sum).doubleValue()<MIN_SUM_OF_ACCOUNT){
-            throw  new DbException("Insufficient money on account");
-        }
-        transactionManager.doWithoutTransaction(() -> {
-            Account changedAccount = new Account(accountId,new Account.Card());
-            changedAccount = accountDao.getAccount(new AccountCriteria(changedAccount,false,false));
-            changedAccount.setBalance(changedAccount.getBalance().add(sum));
-            accountDao.setAccount(new AccountCriteria(changedAccount,true,false), accountId);
-            return null;
+        transactionManager.doWithTransaction(()->
+        {
+            Account account = new Account(accountId,new Account.Card());
+           account = accountDao.getAccount(new AccountCriteria(account,false,false));
+           account.setRequestedForUnban(true);
+           accountDao.setAccount(new AccountCriteria(account,false,true),accountId);
+           return null;
         });
-    }
+}
+
 }

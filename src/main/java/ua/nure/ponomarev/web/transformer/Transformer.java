@@ -17,7 +17,7 @@ import java.time.LocalDate;
  * @author Bogdan_Ponamarev.
  */
 public class Transformer {
-    public static final String DEFAULT_CURRENCY = "USD";
+    private static final String DEFAULT_CURRENCY = "USD";
     private static Logger logger = LogManager.getLogger(Transformer.class);
 
     public static User transformToUser(RegistrationForm registrationForm) {
@@ -38,7 +38,6 @@ public class Transformer {
         user.setPassword(userForm.getPassword());
         return user;
     }
-
     public static Account transformToAccount(AccountForm accountForm) {
         Account.Card card = new Account.Card();
         BigDecimal amount=new BigDecimal(0);
@@ -71,4 +70,5 @@ public class Transformer {
                 .id(0).name(accountForm.getName()).isBanned(false).isRequestedForUnban(false)
                 .currency(currency).balance(amount).build();
     }
+
 }

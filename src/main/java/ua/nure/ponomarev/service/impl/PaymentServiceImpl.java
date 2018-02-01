@@ -26,6 +26,7 @@ import java.util.List;
 public class PaymentServiceImpl implements PaymentService {
     private static final int MAX_SUM_OF_ACCOUNT = 1000000;
     private static final int MIN_SUM_OF_ACCOUNT = 0;
+    private static final int PAGINATE_QUANTITY = 5;
     private TransactionManager transactionManager;
     private PaymentDao paymentDao;
     private AccountDao accountDao;
@@ -94,7 +95,7 @@ public class PaymentServiceImpl implements PaymentService {
         User user = new User();
         List<String> error = new ArrayList<>();
         user.setId(userId);
-        for (Account account : accountDao.getAll(new UserCriteria(user))) {
+        for (Account account : accountDao.getAll(new UserCriteria(user),"id")) {
             if (accountId == account.getId()) {
                 return error;
             }
@@ -199,17 +200,39 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     @Override
-    public List<Payment> getPayments(int userId) throws DbException {
-        return transactionManager.doWithoutTransaction(() -> paymentDao.getAll(userId));
+    public List<Payment> getPayments(int userId,int page,Strategy strategy) throws DbException {
+        String sortedColumn="id";
+        if(strategy!=null) {
+            if (strategy== Strategy.FIRST_OLD) {
+                sortedColumn = "date";
+            }
+            if (strategy == Strategy.FIRST_NEW) {
+                sortedColumn = " date DESC";
+            }
+        }
+        String finalColumn  = sortedColumn;
+        return transactionManager.doWithoutTransaction(() -> paymentDao.getAll(userId,(page-1)*PAGINATE_QUANTITY,PAGINATE_QUANTITY,finalColumn));
+    }
+    private List<Payment> getPayments(int userId,int page) throws DbException {
+       return transactionManager.doWithoutTransaction(()-> getPayments(userId,page,Strategy.ID));
     }
 
     @Override
-    public void deletePayment(int paymentId) throws DbException {
+    public void deletePayment(int paymentId,int userId) throws DbException, CredentialException {
+        List<String> errors = new ArrayList<>();
         transactionManager.doWithTransaction(() ->
         {
-            paymentDao.deletePayment(paymentId);
+            if(accountDao.getUser(paymentDao.get(paymentId).getSenderId()).getId()==userId) {
+                paymentDao.deletePayment(paymentId);
+            }
+            else{
+                errors.add("Access denied!");
+            }
             return null;
         });
+        if(!errors.isEmpty()){
+            throw new CredentialException(errors);
+        }
     }
 
 }

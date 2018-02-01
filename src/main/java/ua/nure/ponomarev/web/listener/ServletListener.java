@@ -2,14 +2,14 @@ package ua.nure.ponomarev.web.listener;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ua.nure.ponomarev.currency.CurrencyManager;
 import ua.nure.ponomarev.currency.CurrencyManagerImpl;
 import ua.nure.ponomarev.dao.AccountDao;
-import ua.nure.ponomarev.dao.impl.CurrencyDaoImpl;
-import ua.nure.ponomarev.dao.impl.SqlAccountDao;
-import ua.nure.ponomarev.dao.impl.SqlPaymetDao;
-import ua.nure.ponomarev.dao.impl.SqlUserDao;
+import ua.nure.ponomarev.dao.UserDao;
+import ua.nure.ponomarev.dao.impl.*;
 import ua.nure.ponomarev.hash.HashGenerator;
 import ua.nure.ponomarev.hash.ShaHashGeneratorImpl;
+import ua.nure.ponomarev.holder.RequestedAccountHolderImpl;
 import ua.nure.ponomarev.sender.EmailSender;
 import ua.nure.ponomarev.sender.SmsSender;
 import ua.nure.ponomarev.sender.impl.EmailSenderImpl;
@@ -18,10 +18,7 @@ import ua.nure.ponomarev.service.UserService;
 import ua.nure.ponomarev.service.impl.*;
 import ua.nure.ponomarev.transaction.TransactionManager;
 import ua.nure.ponomarev.web.form.impl.FormMakerImpl;
-import ua.nure.ponomarev.web.validator.AccountValidator;
-import ua.nure.ponomarev.web.validator.AuthorizationValidator;
-import ua.nure.ponomarev.web.validator.PaymentValidator;
-import ua.nure.ponomarev.web.validator.RegistrationValidator;
+import ua.nure.ponomarev.web.validator.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -41,6 +38,8 @@ public class ServletListener implements ServletContextListener {
     private TransactionManager transactionManager;
     private HashGenerator hash = new ShaHashGeneratorImpl();
     private AccountDao accountDao;
+    private UserDao userDao;
+    private CurrencyManager currencyManager;
 
     public ServletListener() {
         logger.info("Application was started");
@@ -59,7 +58,7 @@ public class ServletListener implements ServletContextListener {
         accountServiceInitialized(servletContext);
         paymentServiceInitialized(servletContext);
         registrationValidatorInitialized(servletContext);
-
+        localeServiceInitialized(servletContext);
     }
 
     @Override
@@ -68,33 +67,39 @@ public class ServletListener implements ServletContextListener {
     }
 
     private void paymentServiceInitialized(ServletContext servletContext) {
+        currencyManager = new CurrencyManagerImpl(new CurrencyDaoImpl(dataSource));
         servletContext.setAttribute("payment_service", new PaymentServiceImpl(
-                transactionManager, new SqlPaymetDao(dataSource), accountDao
-                , new CurrencyManagerImpl(new CurrencyDaoImpl(dataSource))
+                transactionManager, new SqlPaymentDao(dataSource, accountDao), accountDao
+                , currencyManager
         ));
     }
 
     private void accountServiceInitialized(ServletContext servletContext) {
         accountDao = new SqlAccountDao(dataSource);
         servletContext.setAttribute("account_service", new AccountServiceImpl(accountDao
-                , transactionManager, hash));
+                , transactionManager, hash,currencyManager,new RequestedAccountHolderImpl(accountDao,transactionManager)));
     }
 
     private void userServiceInitialized(ServletContext servletContext) {
         servletContext.setAttribute("hash", hash);
-        UserService userService = new UserServiceImpl(transactionManager, new SqlUserDao(dataSource), hash);
+        userDao =new SqlUserDao(dataSource);
+        UserService userService = new UserServiceImpl(transactionManager, userDao, hash);
         servletContext.setAttribute("user_service", userService);
     }
 
     private void currencyServiceInitialized(ServletContext servletContext) {
         servletContext.setAttribute("currency_service"
-                , new CurrencyServiceImpl(transactionManager,new CurrencyDaoImpl(dataSource)));
+                , new CurrencyServiceImpl(transactionManager, new CurrencyDaoImpl(dataSource)));
     }
 
     private void notificationServiceInitialized(ServletContext servletContext) {
         EmailSender emailSender = new EmailSenderImpl();
         SmsSender smsSender = new SmsSenderImpl();
         servletContext.setAttribute("notification_service", new NotificationServiceImpl(smsSender, emailSender));
+    }
+    private void localeServiceInitialized(ServletContext servletContext) {
+        servletContext.setAttribute("locale_service"
+                , new LocaleServiceImpl(transactionManager,new LocaleDaoImpl(dataSource)));
     }
 
     private void formMakerInitialized(ServletContext servletContext) {
@@ -106,6 +111,7 @@ public class ServletListener implements ServletContextListener {
         servletContext.setAttribute("authorization_validator", new AuthorizationValidator());
         servletContext.setAttribute("account_validator", new AccountValidator());
         servletContext.setAttribute("payment_validator", new PaymentValidator());
+        servletContext.setAttribute("replenish_validator", new ReplenishValidator());
     }
 
 }

@@ -18,4 +18,6 @@ public interface FormMaker {
     UserForm createUserForm(HttpServletRequest request);
 
     PaymentForm createPaymentForm(HttpServletRequest request);
+
+    ReplenishForm createReplenishForm (HttpServletRequest request);
 }

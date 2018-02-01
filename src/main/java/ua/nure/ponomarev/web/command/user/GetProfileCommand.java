@@ -33,16 +33,23 @@ public class GetProfileCommand extends FrontCommand {
     @Override
     public void execute() throws ServletException, IOException {
         String userId= request.getParameter("user_id");
+        String sortStrategy =request.getParameter("sort");
         if(userId==null){
             userId =String.valueOf( request.getSession().getAttribute("userId"));
         }
-        if(userId !=null){
+        if(userId !=null&&!userId.equals("null")){
             User user= new User();
             user.setId(Integer.parseInt(userId));
             try {
                user =  userService.getFullUser(user);
                request.setAttribute("user",user);
-               request.setAttribute("accounts",accountService.getAccounts(user.getId()));
+                       if(sortStrategy==null||(!sortStrategy.equals("ID")
+                               &&!sortStrategy.equals("NAME")
+                               &&!sortStrategy.equals("BALANCE"))){
+                           sortStrategy = "ID";
+                       }
+               request.setAttribute("accounts",accountService.getAccounts(user.getId()
+                       , AccountService.SortStrategy.valueOf(sortStrategy)));
             } catch (DbException e) {
                 ExceptionHandler.handleException(e,request,response);
             } catch (CredentialException e) {

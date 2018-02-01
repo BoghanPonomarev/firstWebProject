@@ -11,7 +11,16 @@ import java.util.List;
  * @author Bogdan_Ponamarev.
  */
 public interface AccountService {
-    List<Account> getAccounts(int userId) throws DbException;
+    public enum SortStrategy{
+        ID,
+        NAME,
+        BALANCE
+    }
+    List<Account> getAccounts(int userId,SortStrategy sortStrategy) throws DbException;
+
+    Account get(int accountId) throws DbException;
+
+    void replenishAccount(BigDecimal amount,String currency,String accountName) throws DbException, CredentialException;
 
     boolean isExistCardNumber(String cardNumber) throws DbException;
 
@@ -19,7 +28,7 @@ public interface AccountService {
 
     void delete(int accountId, String userPassword) throws DbException, CredentialException;
 
-    void setBanValue(int accountId, boolean value) throws DbException;
+    void setBanValue(int accountId) throws DbException;
 
-    void changeAmount(int AccountId, BigDecimal sum) throws DbException;
+    void setRequestedValue(int accountId)throws DbException,CredentialException;
 }

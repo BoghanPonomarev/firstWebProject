@@ -12,9 +12,9 @@ import java.util.List;
  * @author Bogdan_Ponamarev.
  */
 public interface AccountDao {
-    List<Account> getAll(UserCriteria userCriteria) throws DbException;
+    List<Account> getAll(UserCriteria userCriteria,String sortedColumn) throws DbException;
 
-    List<Account> getAll(AccountCriteria accountCriteria) throws DbException;
+    List<Account> getAll(AccountCriteria accountCriteria,String sortedColumn) throws DbException;
 
     User getUser(int accountId) throws DbException;
 

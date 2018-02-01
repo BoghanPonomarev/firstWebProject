@@ -68,4 +68,12 @@ public class FormMakerImpl implements FormMaker {
         paymentForm.setCurrency(request.getParameter("currency"));
         return paymentForm;
     }
+    @Override
+    public ReplenishForm createReplenishForm (HttpServletRequest request){
+        ReplenishForm replenishForm =new ReplenishForm();
+        replenishForm.setCurrency(request.getParameter("currency"));
+        replenishForm.setAccountName(request.getParameter("account_name"));
+        replenishForm.setAmount(request.getParameter("amount"));
+        return replenishForm;
+    }
 }

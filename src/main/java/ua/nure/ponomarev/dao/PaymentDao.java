@@ -15,5 +15,7 @@ public interface PaymentDao {
 
     void deletePayment(int paymentId)throws DbException;
 
-    List<Payment> getAll(int userId) throws DbException;
+    List<Payment> getAll(int userId,int startCount,int quantity,String sortedColumn) throws DbException;
+
+    List<Payment> getAll(int userId,int startCount,int quantity,String sortedColumn,boolean onlyReadyPayments) throws DbException;
 }

@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -20,8 +21,10 @@ import java.util.Map;
  */
 public class SqlUserDao implements UserDao {
     private static final String SQL_UPDATE_QUERY_TO_FILL = "UPDATE webproject.users SET ";
-    private static final String SQL_CREATE_QUERY = "INSERT INTO webproject.users (password,phone_number) VALUES (?,?)";
-    private static final String SQL_SELECT_QUERY_TO_FILL = "SELECT * FROM webproject.users WHERE";
+    private static final String SQL_CREATE_QUERY = "INSERT INTO webproject.users (password,phone_number,language_id) VALUES (?,?,(SELECT id FROM webproject.languages WHERE name = 'en'))";
+    private static final String SQL_SELECT_QUERY_TO_FILL = "SELECT * FROM webproject.users WHERE ";
+    private static final String SQL_SET_LANGUAGE_QUERY = "UPDATE webproject.users SET language_id = (SELECT id FROM webproject.languages WHERE name = ?) WHERE id=?";
+    public static final String SQL_GET_LANGUAGE_QUERY = "SELECT name FROM webproject.languages WHERE id in (SELECT language_id FROM webproject.users WHERE id = ?)";
     private static Logger logger = LogManager.getLogger(SqlUserDao.class);
     private SqlDaoConnectionManager connectionManager;
 
@@ -56,6 +59,43 @@ public class SqlUserDao implements UserDao {
             connectionManager.closePrepareStatement(preparedStatement);
         }
         return -1;
+    }
+
+    @Override
+    public void setLanguage(int userId,Locale language) throws DbException {
+        PreparedStatement preparedStatement = null;
+
+        try {
+            Connection connection = connectionManager.getConnection();
+            preparedStatement = connection.prepareStatement(SQL_SET_LANGUAGE_QUERY);
+            preparedStatement.setString(1, language.getLanguage());
+            preparedStatement.setInt(2, userId);
+            preparedStatement.execute();
+        } catch (SQLException ex) {
+            logger.error("Could not set language", ex);
+            throw new DbException("Could not set language", DbException.ExceptionType.SERVER_EXCEPTION, ex);
+        } finally {
+            connectionManager.closePrepareStatement(preparedStatement);
+        }
+    }
+
+    @Override
+    public Locale getLanguage(int userId) throws DbException {
+        PreparedStatement preparedStatement= null;
+        ResultSet resultSet = null;
+        try{
+            Connection connection = connectionManager.getConnection();
+            preparedStatement = connection.prepareStatement(SQL_GET_LANGUAGE_QUERY);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return new Locale(resultSet.getString(1));
+        } catch (SQLException e) {
+            logger.error("Could not get locale "+e);
+            throw new DbException("Could not get locale ");
+        }finally {
+            connectionManager.closeResultSet(resultSet);
+            connectionManager.closePrepareStatement(preparedStatement);
+        }
     }
 
     @Override
@@ -162,7 +202,7 @@ public class SqlUserDao implements UserDao {
         List<User> resultUsers = new ArrayList<>();
         try {
             Connection connection = connectionManager.getConnection();
-            preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria) + "LIMIT "
+            preparedStatement = connection.prepareStatement(createSelectQuery(userCriteria) + " ORDER BY id LIMIT "
                     +startCount+","+quantity);
             resultSet = preparedStatement.executeQuery();
             User user;

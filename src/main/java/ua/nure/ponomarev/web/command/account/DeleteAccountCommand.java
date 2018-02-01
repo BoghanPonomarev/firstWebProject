@@ -35,7 +35,7 @@ public class DeleteAccountCommand extends FrontCommand {
         if (password != null) {
             PrintWriter out = response.getWriter();
             try {
-                accountService.delete(Integer.parseInt(request.getParameter("account_id")), password);
+                accountService.delete(Integer.parseInt(request.getParameter("accountId")), password);
             } catch (CredentialException e) {
                 logger.error("User entered invalid data");
                 response.sendError(500);

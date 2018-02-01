@@ -71,14 +71,14 @@ function showWindow(id) {
     showPrompt("Write your password:", function (value) {
     });
 }
-function deleteAccount() {
+function checkPassword() {
     $.ajax
     ({
         type: "get",//Метод передачи
         url: '../accounts/delete?password=' + document.getElementById("password").value
-        + "&account_id=" + element,
+        + "&accountId=" + element,
         success: function (data) {
-            window.location = "../accounts/show_accounts";
+            window.location = "../profile";
         },
         error: function (e)//Если запрос не удачен
         {

@@ -5,6 +5,7 @@ import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Bogdan_Ponamarev.
@@ -24,4 +25,8 @@ public interface UserService {
     List<User> getAll(User.Role requesterRole,int page,boolean isOnlyBanned) throws DbException;
 
     List<User> getAll(User.Role requesterRole,int page) throws DbException;
+
+    void setLanguage(int userId,Locale locale) throws DbException;
+
+    Locale getLanguage(int userId) throws DbException;
 }

@@ -1,0 +1,68 @@
+<aside id="left-panel" class="left-panel">
+    <nav class="navbar navbar-expand-lg">
+        <div data-v-091b4d20="" class="navbar-header">
+            <button data-v-091b4d20="" type="button" data-toggle="collapse" data-target="#main-menu"
+                    aria-controls="main-menu" aria-expanded="false" aria-label="Toggle navigation"
+                    class="navbar-toggler"><i data-v-091b4d20="" class="fa fa-bars"></i></button>
+            <a data-v-091b4d20="" href="#/" class="navbar-brand invisible-xs"><img data-v-091b4d20=""
+                                                                                   src="../images/logo.png"
+                                                                                   alt="Logo" class="float-left"></a> <a
+                data-v-091b4d20="" href="#/" class="navbar-brand d-md-none open active"><img data-v-091b4d20=""
+                                                                                             src="../images/logo.png"
+                                                                                             alt="Logo"></a></div>
+        <div id="main-menu" role="navigation" class="main-menu collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <h3 class="menu-title">
+                    <fmt:message key="dashboard.menu"/>
+                </h3>
+                <li class="menu-item-has-children open"><a onclick="setHiddenStatus('Me')" href="#"><i
+                        class="menu-icon fa fa-pencil-square-o"></i><span class="menu-title-text">
+                    <fmt:message key="dashboard.me"/></span></a>
+                    <ul style="display: none" class="sub-menu children Me">
+                        <li class="nav-item"><a href="${contextPath}/user/profile" class=""><i
+                                class="menu-icon fa fa-pencil-square-o"></i> <span
+                                class="menu-title-text"><fmt:message key="dashboard.me.profile"/></span></a></li>
+                        <li class="nav-item open"><a href="${contextPath}/user/settings" class=""><i
+                                class="menu-icon fa fa-pencil-square-o"></i> <span
+                                class="menu-title-text"><fmt:message key="dashboard.me.settings"/></span> <!----></a></li>
+                    </ul>
+                </li>
+                <li class="menu-item-has-children open"><a onclick="setHiddenStatus('Payment')" href="#"><i
+                        class="menu-icon fa fa-pencil-square-o"></i><span class="menu-title-text"><fmt:message key="dashboard.payments"/></span></a>
+                    <ul style="display: none" class="sub-menu children Payment">
+                        <li class="nav-item"><a href="${contextPath}/payments/form" class=""><i
+                                class="menu-icon fa fa-pencil-square-o"></i> <span
+                                class="menu-title-text"><fmt:message key="dashboard.payments.new"/></span></a></li>
+                        <li class="nav-item open"><a href="${contextPath}/payments" class=""><i
+                                class="menu-icon fa fa-pencil-square-o"></i> <span
+                                class="menu-title-text"><fmt:message key="dashboard.payments.show"/></span> <!----></a></li>
+                    </ul>
+                </li>
+                <li class="menu-item-has-children open"><a onclick="setHiddenStatus('Account')" href="#"><i
+                        class="menu-icon fa fa-pencil-square-o"></i><span class="menu-title-text"><fmt:message key="dashboard.account"/></span></a>
+                    <ul style="display: none" class="sub-menu children Account">
+                        <li class="nav-item"><a href="${contextPath}/accounts/form" class=""><i
+                                class="menu-icon fa fa-pencil-square-o"></i> <span
+                                class="menu-title-text"><fmt:message key="dashboard.account.new"/></span></a></li>
+                        <li class="nav-item open"><a href="${contextPath}/replenish/form" class=""><i
+                                class="menu-icon fa fa-pencil-square-o"></i> <span
+                                class="menu-title-text"><fmt:message key="dashboard.account.replenish"/></span> <!----></a></li>
+                    </ul>
+                </li>
+                <c:if test="${sessionScope.userRole eq 'ADMIN' ||sessionScope.userRole eq 'SUPER_ADMIN'}">
+                    <li class="menu-item-has-children open"><a onclick="setHiddenStatus('Admin')" href="#"><i
+                            class="menu-icon fa fa-pencil-square-o"></i><span
+                            class="menu-title-text"><fmt:message key="dashboard.admin"/></span></a>
+                        <ul style="display: none" class="sub-menu children Account">
+                            <li class="nav-item"><a  href="${contextPath}/admin/users" class=""><i
+                                    class="menu-icon fa fa-pencil-square-o"></i> <span
+                                    class="menu-title-text"><fmt:message key="dashboard.admin.users"/></span></a></li>
+                        </ul>
+                    </li>
+                </c:if>
+                <li class="divider"></li>
+            </ul>
+        </div>
+    </nav>
+    <div></div>
+</aside>

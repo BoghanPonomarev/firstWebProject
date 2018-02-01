@@ -10,11 +10,17 @@ import java.math.BigDecimal;
  * @author Bogdan_Ponamarev.
  */
 public interface PaymentService {
+    public enum Strategy{
+        ID,
+        FIRST_OLD,
+        FIRST_NEW
+    }
+
     void executePayment(int id,int userId) throws DbException, CredentialException;
 
     int preparePayment(int senderAccountId, String recipientIdentity, BigDecimal amount, String currency,int userId) throws DbException, CredentialException;
 
-    List<Payment> getPayments(int userId) throws DbException;
+    List<Payment> getPayments(int userId,int page,Strategy strategy) throws DbException;
 
-    void deletePayment(int paymentId) throws DbException;
+    void deletePayment(int paymentId,int userId) throws DbException, CredentialException;
 }

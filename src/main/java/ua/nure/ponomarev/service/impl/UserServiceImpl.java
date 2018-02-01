@@ -11,17 +11,19 @@ import ua.nure.ponomarev.transaction.TransactionManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Bogdan_Ponamarev.
  */
 public class UserServiceImpl implements UserService {
-    private TransactionManager transaction;
+    private TransactionManager transactionManager;
     private UserDao userDao;
     private HashGenerator hash;
     private static final int QUANTITY_OF_ONE_USER_PAGE = 3;
+
     public UserServiceImpl(TransactionManager transaction, UserDao userDao, HashGenerator hash) {
-        this.transaction = transaction;
+        this.transactionManager = transaction;
         this.userDao = userDao;
         this.hash = hash;
     }
@@ -29,14 +31,14 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Method that check existing of particular phone number in data memory
-     * without transaction
+     * without transactionManager
      *
      * @param phoneNumber certain phone number
      * @return true if number exists in data memory
      * @throws DbException if there are some troubles with connection to data memory
      */
     private boolean isExistPhoneNumber(String phoneNumber) throws DbException {
-        return transaction.doWithoutTransaction(() -> {
+        return transactionManager.doWithoutTransaction(() -> {
             User user = new User();
             user.setPhoneNumber(phoneNumber);
             user = userDao.get(new UserCriteria(user));
@@ -45,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private boolean isExistEmail(String email) throws DbException {
-        return transaction.doWithoutTransaction(() -> {
+        return transactionManager.doWithoutTransaction(() -> {
             User user = new User();
             user.setEmail(email);
             user = userDao.get(new UserCriteria(user));
@@ -69,7 +71,7 @@ public class UserServiceImpl implements UserService {
         if (!errors.isEmpty()) {
             throw new CredentialException(errors);
         }
-        return transaction.doWithoutTransaction(() -> {
+        return transactionManager.doWithoutTransaction(() -> {
             user.setPassword(hashUserPassword(user.getPassword()));
             return userDao.put(user);
         });
@@ -88,7 +90,7 @@ public class UserServiceImpl implements UserService {
             errors.add("Email is already exist");
             throw new CredentialException(errors);
         }
-        transaction.doWithTransaction(() -> {
+        transactionManager.doWithTransaction(() -> {
             User user = new User();
             user.setEmail(email);
             userDao.set(new UserCriteria(user), id);
@@ -98,8 +100,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getFullUser(User user) throws DbException, CredentialException {
-        User resUser = transaction.doWithTransaction(() -> {
-            if(user.getPassword()!=null) {
+        User resUser = transactionManager.doWithTransaction(() -> {
+            if (user.getPassword() != null) {
                 user.setPassword(hashUserPassword(user.getPassword()));
             }
             return userDao.get(new UserCriteria(user));
@@ -115,7 +117,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void setBanValue(int userId, boolean value) throws DbException {
-        transaction.doWithoutTransaction(() -> {
+        transactionManager.doWithoutTransaction(() -> {
             User user = new User();
             user.setBanned(value);
             userDao.set(new UserCriteria(user, true), userId);
@@ -124,7 +126,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public void setUserRole(int userId, User.Role role) throws DbException {
-        transaction.doWithoutTransaction(
+        transactionManager.doWithoutTransaction(
                 () -> {
                     User user = new User();
                     user.setRole(role);
@@ -134,25 +136,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll(User.Role requesterRole,int page,boolean isOnlyBanned) throws DbException {
+    public List<User> getAll(User.Role requesterRole, int page, boolean isOnlyBanned) throws DbException {
         User user = new User();
-        return transaction.doWithTransaction(() ->
+        return transactionManager.doWithTransaction(() ->
         {
             List<User> superAdminList = new ArrayList<>();
             user.setRole(User.Role.USER);
-            if(isOnlyBanned){
+            if (isOnlyBanned) {
                 user.setBanned(true);
             }
-            superAdminList.addAll(userDao.getAll(new UserCriteria(user),(page-1)*QUANTITY_OF_ONE_USER_PAGE,QUANTITY_OF_ONE_USER_PAGE));
+            superAdminList.addAll(userDao.getAll(new UserCriteria(user), (page - 1) * QUANTITY_OF_ONE_USER_PAGE, QUANTITY_OF_ONE_USER_PAGE));
             if (requesterRole.equals(User.Role.SUPER_ADMIN)) {
                 user.setRole(User.Role.ADMIN);
-                superAdminList.addAll(userDao.getAll(new UserCriteria(user),(page-1)*QUANTITY_OF_ONE_USER_PAGE,QUANTITY_OF_ONE_USER_PAGE));
+                superAdminList.addAll(userDao.getAll(new UserCriteria(user), (page - 1) * QUANTITY_OF_ONE_USER_PAGE, QUANTITY_OF_ONE_USER_PAGE));
             }
             return superAdminList;
         });
     }
+
     @Override
-    public List<User> getAll(User.Role requesterRole,int page) throws DbException {
-       return getAll(requesterRole,page,false);
+    public List<User> getAll(User.Role requesterRole, int page) throws DbException {
+        return getAll(requesterRole, page, false);
+    }
+
+    @Override
+    public void setLanguage(int userId, Locale locale) throws DbException {
+        transactionManager.doWithTransaction(() -> {
+            userDao.setLanguage(userId, locale);
+            return null;
+        });
+    }
+
+    @Override
+    public Locale getLanguage(int userId) throws DbException {
+        return transactionManager.doWithTransaction(()-> userDao.getLanguage(userId));
     }
 }
