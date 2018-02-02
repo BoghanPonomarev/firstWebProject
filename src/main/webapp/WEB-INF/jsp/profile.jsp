@@ -3,7 +3,7 @@
 <head>
     <title>Home</title>
     <link href="${contextPath}/css/asking_for_delete.css" rel="stylesheet" type="text/css" media="all"/>
-    <script type="text/javascript" src="${contextPath}/js/account_deletiong.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/account_deleting.js"></script>
     <script type="text/javascript" src="${contextPath}/js/sort_requests.js"></script>
     <link href="${contextPath}/css/users_drop-menu.css" rel="stylesheet"/>
     <%@ include file="/WEB-INF/jspf/imports.jspf" %>
@@ -51,14 +51,14 @@
                         <div class="card-text text-sm-center">
                             <c:if test="${requestScope.user.banned&&(sessionScope.userRole eq 'ADMIN'||sessionScope.userRole eq 'SUPER_ADMIN')
                             &&requestScope.user.id!=sessionScope.userId}">
-                                <a href="${contextPath}/admin/ban_user?user_id=${requestScope.user.id}&ban_status=${requestScope.user.banned}"
+                                <a href="${contextPath}/admin/user/ban?userId=${requestScope.user.id}&banStatus=${requestScope.user.banned}"
                                    style="color:green" class="btn btn-success">
                                     <span style="color: white"><fmt:message key="profile.unBan"/> </span>
                                 </a>
                             </c:if>
                             <c:if test="${!requestScope.user.banned&&(sessionScope.userRole eq 'ADMIN'||sessionScope.userRole eq 'SUPER_ADMIN')
                             &&requestScope.user.id!=sessionScope.userId}">
-                                <a href="${contextPath}/admin/ban_user?user_id=${requestScope.user.id}&ban_status=${requestScope.user.banned}"
+                                <a href="${contextPath}/admin/user/ban?userId=${requestScope.user.id}&banStatus=${requestScope.user.banned}"
                                    style="color:red" class="btn btn-danger"><span style="color: white"><fmt:message key="profile.ban"/> </span>
                                 </a>
                             </c:if>
@@ -68,7 +68,9 @@
             </div>
         </div>
         <hr>
+        <c:if test="${sessionScope.userId == requestScope.user.id}">
         <h2 style="text-align: center"><fmt:message key="profile.yourAccounts"/>:</h2><br>
+        </c:if>
         <form style="margin-left: 20px ;width: 200px">
             <fmt:message key="profile.sort.by"/>: <select data-v-12201132="" onchange="accountSortRequest(${requestScope.user.id})" id="sort"
                              class="form-control">
@@ -109,25 +111,24 @@
                                     <c:out value="${fn:substring(account.card.cardNumber,0, 5)}*****${fn:substring(account.card.cardNumber,10, fn:length(account.card.cardNumber)-1)}"/>
                                 </h5>
                                 <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.account.cvv"/> : ${account.card.CVV}</h5>
-                                <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.account.date"/> :${account.card.validThru}</h5>
+                                <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.account.date"/> - <custom:dateLocalization value="${account.card.validThru}" pattern="MM:yyyy"/></h5>
                             </div>
                             <hr>
                             <div class="card-text text-sm-center">
                                 <c:if test="${account.banned&&(sessionScope.userRole eq 'ADMIN'||sessionScope.userRole eq 'SUPER_ADMIN')
                                 &&requestScope.user.id!=sessionScope.userId}">
-                                    <a href="${contextPath}/accounts/ban?accountId=${account.id}+&userId=${requestScope.user.id}"
+                                    <a href="${contextPath}/accounts/ban?accountId=${account.id}&userId=${requestScope.user.id}"
                                        style="color:green" class="btn btn-success">
                                         <span style="color: white"><fmt:message key="profile.unBan"/> </span>
                                     </a>
                                 </c:if>
                                 <c:if test="${!account.banned&&(sessionScope.userRole eq 'ADMIN'||sessionScope.userRole eq 'SUPER_ADMIN')}">
-                                    <a href="${contextPath}/accounts/ban?accountId=${account.id}+
-                                    &userId=${requestScope.user.id}"
+                                    <a href="${contextPath}/accounts/ban?accountId=${account.id}&userId=${requestScope.user.id}"
                                        style="color:red" class="btn btn-danger"><span style="color: white"><fmt:message key="profile.ban"/> </span>
                                     </a>
                                 </c:if>
-                                <c:if test="${account.banned&&!account.requestedForUnban&&!(sessionScope.userRole eq 'ADMIN'||sessionScope.userRole eq 'SUPER_ADMIN')&&requestScope.user.id==sessionScope.userId}">
-                                    <a href="${contextPath}/accounts/request?accountId=${account.id}&userId=${requestScope.user.id}"
+                                <c:if test="${account.banned&&!account.requestedForUnban&&!(sessionScope.userRole eq 'SUPER_ADMIN')&&requestScope.user.id==sessionScope.userId}">
+                                    <a href="${contextPath}/accounts/request?accountId=${account.id}&userId=${requestScope.user.id}&link=/user/profile?userId=${requestScope.user.id}"
                                        style="color:green" class="btn btn-warning">
                                         <span style="color: black"><fmt:message key="profile.request"/> </span>
                                     </a>

@@ -50,7 +50,7 @@ public class AuthorizationCheckCommand extends FrontCommand {
             user = userService.getFullUser(Transformer.transformToUser(formMaker.createUserForm(request)));
             request.getSession().setAttribute("userId", user.getId());
             request.getSession().setAttribute("userRole", user.getRole());
-            forward("/user/profile");
+            redirect(request.getContextPath() + "/user/profile");
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         } catch (CredentialException e) {

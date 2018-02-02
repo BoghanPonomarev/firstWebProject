@@ -83,6 +83,27 @@ public class SqlAccountDao implements AccountDao {
     }
 
     @Override
+    public List<Account> getAll(AccountCriteria accountCriteria, String sortedColumn, int start, int quantity) throws DbException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Account> resultAccounts = new ArrayList<>();
+        try {
+            Connection connection = connectionManager.getConnection();
+            preparedStatement = connection.prepareStatement(createSelectQuery(accountCriteria)+
+                    "ORDER BY "+ sortedColumn + " LIMIT " + start + ","+quantity);
+            resultSet = preparedStatement.executeQuery();
+            Account account;
+            while ((account = fillAccount(resultSet, connection)) != null) {
+                resultAccounts.add(account);
+            }
+        } catch (SQLException e) {
+            logger.error("Can`nt get all accounts" + e);
+            throw new DbException("Trouble refer with data base");
+        }
+        return resultAccounts;
+    }
+
+    @Override
     public User getUser(int accountId) throws DbException {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;

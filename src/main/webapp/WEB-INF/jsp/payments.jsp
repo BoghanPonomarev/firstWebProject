@@ -45,7 +45,7 @@
                                 <thead data-v-6159491e="">
                                 <tr data-v-6159491e=""><!---->
                                     <th data-v-6159491e="" class="vuetable-th-component-id"></th>
-                                    <th data-v-6159491e="" id="number" class="vuetable-th-name">№</th>
+                                    <th data-v-6159491e="" id="number" class="vuetable-th-name"><fmt:message key="payment.number"/></th>
                                     <th data-v-6159491e="" id="date" class="vuetable-th-name"><fmt:message key="payment.date"/></th>
                                     <th data-v-6159491e="" id="amount" class="vuetable-th-name"><fmt:message key="payment.amount"/></th>
                                     <th data-v-6159491e="" id="sender" class="vuetable-th-name"><fmt:message key="payment.sender"/></th>
@@ -68,7 +68,7 @@
                                             </c:if>
                                         </td> <!---->
                                         <td data-v-6159491e="" class="">${payment.id}</td>
-                                        <td data-v-6159491e="" class="">${payment.date}</td>
+                                        <td data-v-6159491e="" class=""><custom:dateLocalization value="${payment.date}" pattern="yyyy:MM:DD hh:mm"/></td>
                                         <td data-v-6159491e="" class="">${payment.amount} ${payment.currency}</td>
                                         <td data-v-6159491e="" class="">${payment.sender}</td>
                                         <td data-v-6159491e="" class="">${payment.recipient}</td>
@@ -98,40 +98,7 @@
                                 </c:forEach>
                                 </tbody>
                             </table>
-                            <div class="d-flex justify-content-center pagination mb-4">
-                                <div class="btn-group" style="">
-                                    <c:if test="${requestScope.previousPage!=null}">
-                                        <a class="btn-nav btn btn-primary pagination-link-btn"
-                                           href="${requestScope.previousPage}"><i
-                                                class="fa fa-angle-left"></i></a>
-                                    </c:if>
-                                    <c:if test="${requestScope.doublePreviousPage!=null}">
-                                        <a class="btn-nav btn btn-primary pagination-link-btn"
-                                           href="${requestScope.doublePreviousPage}">
-                                                ${requestScope.page-2}
-                                        </a>
-                                    </c:if>
-                                    <c:if test="${requestScope.previousPage!=null}">
-                                        <a class="btn-nav btn btn-primary pagination-link-btn"
-                                           href="${requestScope.previousPage}">
-                                                ${requestScope.page-1}
-                                        </a>
-                                    </c:if>
-                                    <a class="btn btn-primary hide-not-focused-btn">${requestScope.page}</a>
-                                    <c:if test="${requestScope.nextPage!=null}">
-                                        <a class="btn-nav btn btn-primary pagination-link-btn"
-                                           href="${requestScope.nextPage}">${requestScope.page+1}</a>
-                                    </c:if>
-                                    <c:if test="${requestScope.doubleNextPage!=null}">
-                                        <a class="btn-nav btn btn-primary pagination-link-btn"
-                                           href="${requestScope.doubleNextPage}">${requestScope.page+2}</a>
-                                    </c:if>
-                                    <c:if test="${requestScope.nextPage!=null}">
-                                        <a class="btn-nav btn btn-primary pagination-link-btn"
-                                           href="${requestScope.nextPage}"><i class="fa fa-angle-right"></i></a>
-                                    </c:if>
-                                </div>
-                            </div>
+                            <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
                         </div>
                     </div> <!----></div>
             </div>

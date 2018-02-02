@@ -55,7 +55,7 @@ public class AdminShowUsersCommand extends FrontCommand {
                     , numberOfPage)) {
                 users.put(user, accountService.getAccounts(user.getId(), AccountService.SortStrategy.ID));
             }
-            paginationValidation(numberOfPage);
+            paginationFilling(numberOfPage);
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
@@ -63,7 +63,7 @@ public class AdminShowUsersCommand extends FrontCommand {
         request.setAttribute("page", numberOfPage);
     }
 
-    private void paginationValidation(int numberOfPage) throws DbException {
+    private void paginationFilling(int numberOfPage) throws DbException {
         if (!userService.getAll((User.Role) request.getSession()
                         .getAttribute("userRole")
                 , numberOfPage + 1).isEmpty()) {

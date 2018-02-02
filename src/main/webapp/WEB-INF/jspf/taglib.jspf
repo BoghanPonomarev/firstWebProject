@@ -4,6 +4,8 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
+<%@ taglib uri="/WEB-INF/tld/custom.tld" prefix="custom" %>
+
 <%@ page isELIgnored="false" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>

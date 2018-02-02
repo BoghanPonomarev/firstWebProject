@@ -16,6 +16,8 @@ public interface AccountDao {
 
     List<Account> getAll(AccountCriteria accountCriteria,String sortedColumn) throws DbException;
 
+    List<Account> getAll(AccountCriteria accountCriteria,String sortedColumn,int start,int quantity) throws DbException;
+
     User getUser(int accountId) throws DbException;
 
     Account getAccount(AccountCriteria accountCriteria) throws DbException;

@@ -32,7 +32,7 @@ public class GetProfileCommand extends FrontCommand {
     }
     @Override
     public void execute() throws ServletException, IOException {
-        String userId= request.getParameter("user_id");
+        String userId= request.getParameter("userId");
         String sortStrategy =request.getParameter("sort");
         if(userId==null){
             userId =String.valueOf( request.getSession().getAttribute("userId"));

@@ -57,7 +57,7 @@ public class ShowPaymentsCommand extends FrontCommand {
                    ,numberOfPage, PaymentService.Strategy.valueOf(sortStrategy))){
            payments.add(convertToForm(payment));
             }
-            paginationValidation(numberOfPage, PaymentService.Strategy.valueOf(sortStrategy));
+            paginationFilling(numberOfPage, PaymentService.Strategy.valueOf(sortStrategy));
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
@@ -65,7 +65,7 @@ public class ShowPaymentsCommand extends FrontCommand {
         request.setAttribute("page", numberOfPage);
     }
 
-    private void paginationValidation(int numberOfPage,PaymentService.Strategy strategy) throws DbException {
+    private void paginationFilling(int numberOfPage, PaymentService.Strategy strategy) throws DbException {
         if (!paymentService.getPayments((Integer) request.getSession().getAttribute("userId")
                 , numberOfPage + 1,strategy).isEmpty()) {
             request.setAttribute("nextPage", servletContext.getContextPath()

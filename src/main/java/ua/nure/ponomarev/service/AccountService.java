@@ -18,6 +18,8 @@ public interface AccountService {
     }
     List<Account> getAccounts(int userId,SortStrategy sortStrategy) throws DbException;
 
+    List<Account> getRequestedAccounts(int page, SortStrategy sortStrategy)throws DbException;
+
     Account get(int accountId) throws DbException;
 
     void replenishAccount(BigDecimal amount,String currency,String accountName) throws DbException, CredentialException;

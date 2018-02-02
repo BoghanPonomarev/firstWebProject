@@ -1,0 +1,34 @@
+<div class="d-flex justify-content-center pagination mb-4">
+    <div class="btn-group" style="">
+        <c:if test="${requestScope.previousPage!=null}">
+            <a class="btn-nav btn btn-primary pagination-link-btn"
+               href="${requestScope.previousPage}"><i
+                    class="fa fa-angle-left"></i></a>
+        </c:if>
+        <c:if test="${requestScope.doublePreviousPage!=null}">
+            <a class="btn-nav btn btn-primary pagination-link-btn"
+               href="${requestScope.doublePreviousPage}">
+                    ${requestScope.page-2}
+            </a>
+        </c:if>
+        <c:if test="${requestScope.previousPage!=null}">
+            <a class="btn-nav btn btn-primary pagination-link-btn"
+               href="${requestScope.previousPage}">
+                    ${requestScope.page-1}
+            </a>
+        </c:if>
+        <a class="btn btn-primary hide-not-focused-btn">${requestScope.page}</a>
+        <c:if test="${requestScope.nextPage!=null}">
+            <a class="btn-nav btn btn-primary pagination-link-btn"
+               href="${requestScope.nextPage}">${requestScope.page+1}</a>
+        </c:if>
+        <c:if test="${requestScope.doubleNextPage!=null}">
+            <a class="btn-nav btn btn-primary pagination-link-btn"
+               href="${requestScope.doubleNextPage}">${requestScope.page+2}</a>
+        </c:if>
+        <c:if test="${requestScope.nextPage!=null}">
+            <a class="btn-nav btn btn-primary pagination-link-btn"
+               href="${requestScope.nextPage}"><i class="fa fa-angle-right"></i></a>
+        </c:if>
+    </div>
+</div>

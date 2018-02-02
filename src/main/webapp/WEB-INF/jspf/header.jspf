@@ -10,9 +10,7 @@
                         </button>
                     </form>
                 </div>
-                <c:forEach items="${requestScope.locales}" var="locale">
-                    <a href="<c:url value ='?language=${locale}'/>">${locale}</a>
-                </c:forEach>
+               <custom:locale/>
                 <div class="dropdown for-notification">
                     <button type="button" id="notification" data-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="false" class="btn btn-secondary dropdown-toggle"><i class="fa fa-bell"></i>

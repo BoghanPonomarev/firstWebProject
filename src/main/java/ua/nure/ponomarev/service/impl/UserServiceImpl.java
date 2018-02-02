@@ -20,7 +20,7 @@ public class UserServiceImpl implements UserService {
     private TransactionManager transactionManager;
     private UserDao userDao;
     private HashGenerator hash;
-    private static final int QUANTITY_OF_ONE_USER_PAGE = 3;
+    private static final int QUANTITY_OF_ONE_USER_PAGE = 5;
 
     public UserServiceImpl(TransactionManager transaction, UserDao userDao, HashGenerator hash) {
         this.transactionManager = transaction;

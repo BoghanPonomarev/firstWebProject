@@ -26,8 +26,9 @@ public class AccountServiceImpl implements AccountService {
     private HashGenerator hashGenerator;
     private RequestedAccountHolder requestedAccountHolder;
     private static final int MAX_SUM_OF_ACCOUNT = 1000000;
-    private static final int MIN_SUM_OF_ACCOUNT = 0;
+    private static final int QUANTITY_OF_ONE_USER_PAGE = 5;
     private CurrencyManager currencyManager;
+
     public AccountServiceImpl(AccountDao accountDao, TransactionManager transactionManager
             , HashGenerator hashGenerator, CurrencyManager currencyManager
             , RequestedAccountHolder requestedAccountHolder) {
@@ -35,62 +36,78 @@ public class AccountServiceImpl implements AccountService {
         this.transactionManager = transactionManager;
         this.hashGenerator = hashGenerator;
         this.currencyManager = currencyManager;
-        this.requestedAccountHolder= requestedAccountHolder;
+        this.requestedAccountHolder = requestedAccountHolder;
     }
 
     @Override
-    public List<Account> getAccounts(int userId,SortStrategy sortStrategy) throws DbException {
+    public List<Account> getAccounts(int userId, SortStrategy sortStrategy) throws DbException {
         return transactionManager.doWithTransaction(() -> {
             User user = new User();
             user.setId(userId);
-            String sortedColumn="id";
-            if(sortStrategy!=null) {
-                if (sortStrategy == SortStrategy.BALANCE) {
-                    sortedColumn = "balance";
-                }
-                if (sortStrategy == SortStrategy.NAME) {
-                    sortedColumn = "name";
-                }
+            return accountDao.getAll(new UserCriteria(user), getSortedColumn(sortStrategy));
+        });
+    }
+
+    private String getSortedColumn(SortStrategy sortStrategy) {
+        String sortedColumn = "id";
+        if (sortStrategy != null) {
+            if (sortStrategy == SortStrategy.BALANCE) {
+                sortedColumn = "balance";
             }
-            return accountDao.getAll(new UserCriteria(user),sortedColumn);
+            if (sortStrategy == SortStrategy.NAME) {
+                sortedColumn = "name";
+            }
+        }
+        return sortedColumn;
+    }
+
+    @Override
+    public List<Account> getRequestedAccounts(int page, SortStrategy sortStrategy) throws DbException {
+        return transactionManager.doWithTransaction(() -> {
+            Account account = new Account();
+            account.setRequestedForUnban(true);
+            return accountDao.getAll(new AccountCriteria(account, false, true)
+                    , getSortedColumn(sortStrategy)
+                    , (page - 1) * QUANTITY_OF_ONE_USER_PAGE, QUANTITY_OF_ONE_USER_PAGE);
         });
     }
 
     @Override
     public Account get(int accountId) throws DbException {
-        return transactionManager.doWithTransaction(()->{
-            Account account = new Account(accountId,null);
-            return accountDao.getAccount(new AccountCriteria(account,false,false));
+        return transactionManager.doWithTransaction(() -> {
+            Account account = new Account(accountId, null);
+            return accountDao.getAccount(new AccountCriteria(account, false, false));
         });
     }
 
     @Override
     public void replenishAccount(BigDecimal amount, String currency, String accountName) throws DbException, CredentialException {
         List<String> errors = new ArrayList<>();
-        try{
-        transactionManager.doWithTransaction(()->{
-            Account account = new Account(0,new Account.Card());
-            account.setName(accountName);
-            account = accountDao.getAccount(new AccountCriteria(account,false,false));
-            if(account==null){
-                errors.add("Account dose`nt exist");
-                throw new DbException("Thrown exception");
-            }
-            BigDecimal sum = amount;
-            if(!account.getCurrency().equals(currency)){
-               sum =  currencyManager.convertCurrency(amount,currency,account.getCurrency());
-            }
-            if(account.getBalance().add(sum).doubleValue()>(double)MAX_SUM_OF_ACCOUNT){
-                errors.add("Your account can not be processed because you reached the maximum amount of money on your account");
-                throw new DbException("Thrown exception");
-            }
-            account.setBalance(account.getBalance().add(sum));
-            accountDao.setAccount(new AccountCriteria(account,false,false),account.getId());
-            return null;
-        });}catch (DbException e){
-            if (e.getMessage().equals("Thrown exception")){
+        try {
+            transactionManager.doWithTransaction(() -> {
+                Account account = new Account(0, new Account.Card());
+                account.setName(accountName);
+                account = accountDao.getAccount(new AccountCriteria(account, false, false));
+                if (account == null) {
+                    errors.add("Account dose`nt exist");
+                    throw new DbException("Thrown exception");
+                }
+                BigDecimal sum = amount;
+                if (!account.getCurrency().equals(currency)) {
+                    sum = currencyManager.convertCurrency(amount, currency, account.getCurrency());
+                }
+                if (account.getBalance().add(sum).doubleValue() > (double) MAX_SUM_OF_ACCOUNT) {
+                    errors.add("Your account can not be processed because you reached the maximum amount of money on your account");
+                    throw new DbException("Thrown exception");
+                }
+                account.setBalance(account.getBalance().add(sum));
+                accountDao.setAccount(new AccountCriteria(account, false, false), account.getId());
+                return null;
+            });
+        } catch (DbException e) {
+            if (e.getMessage().equals("Thrown exception")) {
                 throw new CredentialException(errors);
-            }else{
+            } else {
                 throw e;
             }
         }
@@ -100,10 +117,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean isExistCardNumber(String cardNumber) throws DbException {
         return transactionManager.doWithTransaction(() -> {
-            Account.Card card= new Account.Card();
+            Account.Card card = new Account.Card();
             card.setCardNumber(cardNumber);
             Account account = new Account(0, card);
-            return accountDao.getAccount(new AccountCriteria(account, false,false)) != null;
+            return accountDao.getAccount(new AccountCriteria(account, false, false)) != null;
         });
 
     }
@@ -114,13 +131,13 @@ public class AccountServiceImpl implements AccountService {
         if (isExistAccount(account.getId(), account.getCard().getCardNumber())) {
             errors.add("Card with this card number is already exist");
         }
-        Account accountName = transactionManager.doWithTransaction(()->{
+        Account accountName = transactionManager.doWithTransaction(() -> {
             Account accountNameCheck = new Account();
             accountNameCheck.setName(account.getName());
-            return accountDao.getAccount(new AccountCriteria(accountNameCheck,false,false));
+            return accountDao.getAccount(new AccountCriteria(accountNameCheck, false, false));
         });
-        for(Account ac:getAccounts(userId,SortStrategy.ID)) {
-            if(accountName.getName().equals(ac.getName())) {
+        for (Account ac : getAccounts(userId, SortStrategy.ID)) {
+            if (accountName.getName().equals(ac.getName())) {
                 errors.add("You almost have account with this name");
             }
         }
@@ -136,10 +153,10 @@ public class AccountServiceImpl implements AccountService {
 
     private boolean isExistAccount(int accountId, String cardNumber) throws DbException {
         return transactionManager.doWithoutTransaction(() -> {
-            Account.Card card= new Account.Card();
+            Account.Card card = new Account.Card();
             card.setCardNumber(cardNumber);
             Account account = new Account(accountId, card);
-            return accountDao.getAccount(new AccountCriteria(account, false,false)) != null;
+            return accountDao.getAccount(new AccountCriteria(account, false, false)) != null;
         });
     }
 
@@ -163,29 +180,30 @@ public class AccountServiceImpl implements AccountService {
     public void setBanValue(int accountId) throws DbException {
         transactionManager.doWithoutTransaction(() -> {
             requestedAccountHolder.remove(accountId);
-            Account account = new Account(accountId,new Account.Card());
-            account = accountDao.getAccount(new AccountCriteria(account,false,false));
+            Account account = new Account(accountId, new Account.Card());
+            account = accountDao.getAccount(new AccountCriteria(account, false, false));
             account.setBanned(!account.isBanned());
             account.setRequestedForUnban(false);
-            accountDao.setAccount(new AccountCriteria(account,true,true), accountId);
+            accountDao.setAccount(new AccountCriteria(account, true, true), accountId);
             return null;
         });
     }
-@Override
-    public void setRequestedValue(int accountId)throws DbException,CredentialException{
-        if(requestedAccountHolder.isAlreadyRequested(accountId)){
+
+    @Override
+    public void setRequestedValue(int accountId) throws DbException, CredentialException {
+        if (requestedAccountHolder.isAlreadyRequested(accountId)) {
             List<String> errors = new ArrayList<>();
             errors.add("Account already requested,or denied,try request tomorrow");
             throw new CredentialException(errors);
         }
-        transactionManager.doWithTransaction(()->
+        transactionManager.doWithTransaction(() ->
         {
-            Account account = new Account(accountId,new Account.Card());
-           account = accountDao.getAccount(new AccountCriteria(account,false,false));
-           account.setRequestedForUnban(true);
-           accountDao.setAccount(new AccountCriteria(account,false,true),accountId);
-           return null;
+            Account account = new Account(accountId, new Account.Card());
+            account = accountDao.getAccount(new AccountCriteria(account, false, false));
+            account.setRequestedForUnban(true);
+            accountDao.setAccount(new AccountCriteria(account, false, true), accountId);
+            return null;
         });
-}
+    }
 
 }

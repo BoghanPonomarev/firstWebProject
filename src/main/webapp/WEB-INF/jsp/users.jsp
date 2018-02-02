@@ -71,7 +71,7 @@
                                 </c:forEach>
                                 </tbody>
                             </table>
-                            <div class="d-flex justify-content-center pagination mb-4">
+                           <%-- <div class="d-flex justify-content-center pagination mb-4">
                                 <div class="btn-group" style="">
                                     <c:if test="${requestScope.previousPage!=null}">
                                         <a class="btn-nav btn btn-primary pagination-link-btn"
@@ -104,7 +104,8 @@
                                            href="${requestScope.nextPage}"><i class="fa fa-angle-right"></i></a>
                                     </c:if>
                                 </div>
-                            </div>
+                            </div>--%>
+                            <%@ include file="/WEB-INF/jspf/pagination.jspf" %>
                         </div>
                     </div> <!----></div>
             </div>

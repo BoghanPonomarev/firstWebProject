@@ -27,12 +27,12 @@ public class AdminBanUserCommand extends FrontCommand {
 
     @Override
     public void execute() throws ServletException, IOException {
-        String id = request.getParameter("user_id");
+        String id = request.getParameter("userId");
         try {
-            userService.setBanValue(Integer.parseInt(id), !Boolean.parseBoolean(request.getParameter("ban_status")));
+            userService.setBanValue(Integer.parseInt(id), !Boolean.parseBoolean(request.getParameter("banStatus")));
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
-        redirect(servletContext.getContextPath()+"/user/profile?user_id="+id);
+        redirect(servletContext.getContextPath()+"/user/profile?userId="+id);
     }
 }
