@@ -223,11 +223,8 @@ public class SqlAccountDao implements AccountDao {
                 user.setPassword(resultSet.getString(2));
                 user.setPhoneNumber(resultSet.getString(3));
                 user.setEmail(resultSet.getString(4));
-                user.setFirstName(resultSet.getString(5));
-                user.setSecondName(resultSet.getString(6));
-                user.setThirdName(resultSet.getString(7));
-                user.setRole(User.Role.valueOf(resultSet.getString(8)));
-                user.setBanned(resultSet.getBoolean(9));
+                user.setRole(User.Role.valueOf(resultSet.getString(5)));
+                user.setBanned(resultSet.getBoolean(6));
             }
         } catch (SQLException ex) {
             logger.error("Something wrong with data filling", ex);

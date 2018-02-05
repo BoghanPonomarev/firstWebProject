@@ -1,5 +1,6 @@
 package ua.nure.ponomarev.service;
 
+import ua.nure.ponomarev.document.DocumentType;
 import ua.nure.ponomarev.entity.Payment;
 import ua.nure.ponomarev.exception.CredentialException;
 import ua.nure.ponomarev.exception.DbException;
@@ -23,4 +24,6 @@ public interface PaymentService {
     List<Payment> getPayments(int userId,int page,Strategy strategy) throws DbException;
 
     void deletePayment(int paymentId,int userId) throws DbException, CredentialException;
+
+    byte[] generateRecord(int paymentId, DocumentType documentType) throws  DbException;
 }

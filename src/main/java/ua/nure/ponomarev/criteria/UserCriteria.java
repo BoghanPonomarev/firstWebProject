@@ -16,9 +16,6 @@ public class UserCriteria {
         if (user.getId() > 0) {
             addToCriteria("id", String.valueOf(user.getId()));
         }
-        addToCriteria("first_name", user.getFirstName());
-        addToCriteria("second_name", user.getSecondName());
-        addToCriteria("third_name", user.getThirdName());
         addToCriteria("email", user.getEmail());
         addToCriteria("password", user.getPassword());
         addToCriteria("phone_number", user.getPhoneNumber());
@@ -30,9 +27,6 @@ public class UserCriteria {
         if (user.getId() > 0) {
             addToCriteria("id", String.valueOf(user.getId()));
         }
-        addToCriteria("first_name", user.getFirstName());
-        addToCriteria("second_name", user.getSecondName());
-        addToCriteria("third_name", user.getThirdName());
         addToCriteria("email", user.getEmail());
         addToCriteria("password", user.getPassword());
         addToCriteria("phone_number", user.getPhoneNumber());

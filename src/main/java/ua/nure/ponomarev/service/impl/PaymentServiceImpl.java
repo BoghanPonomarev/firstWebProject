@@ -6,6 +6,9 @@ import ua.nure.ponomarev.criteria.UserCriteria;
 import ua.nure.ponomarev.currency.CurrencyManager;
 import ua.nure.ponomarev.dao.AccountDao;
 import ua.nure.ponomarev.dao.PaymentDao;
+import ua.nure.ponomarev.document.DocumentType;
+import ua.nure.ponomarev.document.RenderPaymentDto;
+import ua.nure.ponomarev.document.ReportGenerator;
 import ua.nure.ponomarev.entity.Account;
 import ua.nure.ponomarev.entity.Payment;
 import ua.nure.ponomarev.entity.User;
@@ -14,9 +17,11 @@ import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.PaymentService;
 import ua.nure.ponomarev.transaction.TransactionManager;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,11 +31,12 @@ import java.util.List;
 public class PaymentServiceImpl implements PaymentService {
     private static final int MAX_SUM_OF_ACCOUNT = 1000000;
     private static final int MIN_SUM_OF_ACCOUNT = 0;
-    private static final int PAGINATE_QUANTITY = 5;
+    private static final int PAGINATE_QUANTITY = 2;
     private TransactionManager transactionManager;
     private PaymentDao paymentDao;
     private AccountDao accountDao;
     private CurrencyManager currencyManager;
+    private ReportGenerator reportGenerator;
 
     @Override
     public void executePayment(int id, int userId) throws DbException, CredentialException {
@@ -95,7 +101,7 @@ public class PaymentServiceImpl implements PaymentService {
         User user = new User();
         List<String> error = new ArrayList<>();
         user.setId(userId);
-        for (Account account : accountDao.getAll(new UserCriteria(user),"id")) {
+        for (Account account : accountDao.getAll(new UserCriteria(user), "id")) {
             if (accountId == account.getId()) {
                 return error;
             }
@@ -200,39 +206,61 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     @Override
-    public List<Payment> getPayments(int userId,int page,Strategy strategy) throws DbException {
-        String sortedColumn="id";
-        if(strategy!=null) {
-            if (strategy== Strategy.FIRST_OLD) {
+    public List<Payment> getPayments(int userId, int page, Strategy strategy) throws DbException {
+        String sortedColumn = "id";
+        if (strategy != null) {
+            if (strategy == Strategy.FIRST_OLD) {
                 sortedColumn = "date";
             }
             if (strategy == Strategy.FIRST_NEW) {
                 sortedColumn = " date DESC";
             }
         }
-        String finalColumn  = sortedColumn;
-        return transactionManager.doWithoutTransaction(() -> paymentDao.getAll(userId,(page-1)*PAGINATE_QUANTITY,PAGINATE_QUANTITY,finalColumn));
+        String finalColumn = sortedColumn;
+        return transactionManager.doWithoutTransaction(() -> paymentDao.getAll(userId, (page - 1) * PAGINATE_QUANTITY, PAGINATE_QUANTITY, finalColumn));
     }
-    private List<Payment> getPayments(int userId,int page) throws DbException {
-       return transactionManager.doWithoutTransaction(()-> getPayments(userId,page,Strategy.ID));
+
+    private List<Payment> getPayments(int userId, int page) throws DbException {
+        return transactionManager.doWithoutTransaction(() -> getPayments(userId, page, Strategy.ID));
     }
 
     @Override
-    public void deletePayment(int paymentId,int userId) throws DbException, CredentialException {
+    public void deletePayment(int paymentId, int userId) throws DbException, CredentialException {
         List<String> errors = new ArrayList<>();
         transactionManager.doWithTransaction(() ->
         {
-            if(accountDao.getUser(paymentDao.get(paymentId).getSenderId()).getId()==userId) {
+            if (accountDao.getUser(paymentDao.get(paymentId).getSenderId()).getId() == userId) {
                 paymentDao.deletePayment(paymentId);
-            }
-            else{
+            } else {
                 errors.add("Access denied!");
             }
             return null;
         });
-        if(!errors.isEmpty()){
+        if (!errors.isEmpty()) {
             throw new CredentialException(errors);
         }
+    }
+
+    @Override
+    public byte[] generateRecord(int paymentId, DocumentType documentType) throws DbException {
+        return transactionManager.doWithTransaction(() -> {
+            Payment payment = paymentDao.get(paymentId);
+            Account senderAccount = new Account(payment.getSenderId(),new Account.Card());
+            Account recipientAccount = new Account(payment.getRecipientId(),new Account.Card());
+            senderAccount = accountDao.getAccount(new AccountCriteria(senderAccount,false,false));
+            recipientAccount = accountDao.getAccount(new AccountCriteria(recipientAccount,false,false));
+            User sender = accountDao.getUser(senderAccount.getId());
+            User recipient = accountDao.getUser(recipientAccount.getId());
+            return reportGenerator.generateReport(documentType,"payment"
+                    , Arrays.asList(RenderPaymentDto.builder().amount(payment.getAmount().toString()+payment.getCurrency())
+                    .amountCursive("amountCoursive")
+                    .date(payment.getDate().toString())
+                    .documentNumber(String.valueOf(payment.getId()))
+                    .payer(sender.getPhoneNumber())
+                    .receiver(recipient.getPhoneNumber())
+                    .payerAccount(senderAccount.getName())
+                    .receiverAccount(recipientAccount.getName()).build()));
+        });
     }
 
 }

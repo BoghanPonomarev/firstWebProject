@@ -26,7 +26,7 @@ public class AccountServiceImpl implements AccountService {
     private HashGenerator hashGenerator;
     private RequestedAccountHolder requestedAccountHolder;
     private static final int MAX_SUM_OF_ACCOUNT = 1000000;
-    private static final int QUANTITY_OF_ONE_USER_PAGE = 5;
+    private static final int QUANTITY_OF_ONE_USER_PAGE = 2;
     private CurrencyManager currencyManager;
 
     public AccountServiceImpl(AccountDao accountDao, TransactionManager transactionManager
@@ -190,8 +190,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void setRequestedValue(int accountId) throws DbException, CredentialException {
-        if (requestedAccountHolder.isAlreadyRequested(accountId)) {
+    public void setRequestedValue(int accountId,boolean isAdmin) throws DbException, CredentialException {
+        if (requestedAccountHolder.isAlreadyRequested(accountId)&&!isAdmin) {
             List<String> errors = new ArrayList<>();
             errors.add("Account already requested,or denied,try request tomorrow");
             throw new CredentialException(errors);
@@ -200,7 +200,7 @@ public class AccountServiceImpl implements AccountService {
         {
             Account account = new Account(accountId, new Account.Card());
             account = accountDao.getAccount(new AccountCriteria(account, false, false));
-            account.setRequestedForUnban(true);
+            account.setRequestedForUnban(!account.isRequestedForUnban());
             accountDao.setAccount(new AccountCriteria(account, false, true), accountId);
             return null;
         });

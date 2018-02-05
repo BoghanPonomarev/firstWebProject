@@ -4,8 +4,8 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <%@ include file="/WEB-INF/jspf/imports.jspf" %>
-    <script src="${contextPath}/js/registration_validation.js"></script>
-    <script src="${contextPath}/js/pin_code.js"></script>
+    <script src="${contextPath}/js/registrationValidation.js"></script>
+    <script src="${contextPath}/js/pinCode.js"></script>
     <style>li {
         display: none;
         color: red

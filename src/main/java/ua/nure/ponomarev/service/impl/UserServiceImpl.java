@@ -146,10 +146,6 @@ public class UserServiceImpl implements UserService {
                 user.setBanned(true);
             }
             superAdminList.addAll(userDao.getAll(new UserCriteria(user), (page - 1) * QUANTITY_OF_ONE_USER_PAGE, QUANTITY_OF_ONE_USER_PAGE));
-            if (requesterRole.equals(User.Role.SUPER_ADMIN)) {
-                user.setRole(User.Role.ADMIN);
-                superAdminList.addAll(userDao.getAll(new UserCriteria(user), (page - 1) * QUANTITY_OF_ONE_USER_PAGE, QUANTITY_OF_ONE_USER_PAGE));
-            }
             return superAdminList;
         });
     }

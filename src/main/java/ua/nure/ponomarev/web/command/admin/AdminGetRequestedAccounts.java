@@ -4,6 +4,7 @@ import ua.nure.ponomarev.exception.DbException;
 import ua.nure.ponomarev.service.AccountService;
 import ua.nure.ponomarev.web.command.FrontCommand;
 import ua.nure.ponomarev.web.handler.ExceptionHandler;
+import ua.nure.ponomarev.web.page.Mapping;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -33,30 +34,32 @@ public class AdminGetRequestedAccounts extends FrontCommand {
                 &&!sortStrategy.equals("BALANCE"))){
             sortStrategy = "ID";
         }
+        if(page==null){
+            page = "1";
+        }
         try {
             request.setAttribute("accounts",accountService.getRequestedAccounts(Integer.parseInt(page)
                     , AccountService.SortStrategy.valueOf(sortStrategy)));
             paginationFilling(Integer.parseInt(page),AccountService.SortStrategy.valueOf(sortStrategy));
+            request.setAttribute("page", Integer.parseInt(page));
         } catch (DbException e) {
             ExceptionHandler.handleException(e,request,response);
         }
+        forward(Mapping.getPagePath(Mapping.Page.ADMIN_REQUESTED_ACCOUNTS_PAGE));
     }
     private void paginationFilling(int numberOfPage, AccountService.SortStrategy strategy) throws DbException {
-        if (!accountService.getRequestedAccounts(numberOfPage+1
-                , strategy).isEmpty()) {
+        if (!accountService.getRequestedAccounts(numberOfPage + 1,strategy).isEmpty()) {
             request.setAttribute("nextPage", servletContext.getContextPath()
-                    + "/admin/accounts/requested?page=" + (numberOfPage + 1) +"&sort="+strategy.name());
-            if (!accountService.getRequestedAccounts(numberOfPage+2
-                    , strategy).isEmpty()) {
+                    + "/admin/accounts/requested?page=" + (numberOfPage + 1)+"&sort="+strategy.name());
+            if (!accountService.getRequestedAccounts(numberOfPage + 2,strategy).isEmpty()){
                 request.setAttribute("doubleNextPage", servletContext.getContextPath()
                         + "/admin/accounts/requested?page=" + (numberOfPage + 2)+"&sort="+strategy.name());
             }
         }
         if (numberOfPage > 1) {
             request.setAttribute("previousPage", servletContext.getContextPath()
-                    + "/admin/accounts/requested?page=" + (numberOfPage - 1 +"&sort="+strategy.name()));
-            if (numberOfPage>2&&!accountService.getRequestedAccounts(numberOfPage-2
-                    , strategy).isEmpty()) {
+                    + "/admin/accounts/requested?page=" + (numberOfPage - 1)+"&sort="+strategy.name());
+            if (numberOfPage>2&&!accountService.getRequestedAccounts(numberOfPage - 2,strategy).isEmpty()){
                 request.setAttribute("doublePreviousPage", servletContext.getContextPath()
                         + "/admin/accounts/requested?page=" + (numberOfPage - 2)+"&sort="+strategy.name());
             }

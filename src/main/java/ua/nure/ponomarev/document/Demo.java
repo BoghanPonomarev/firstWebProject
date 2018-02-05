@@ -18,7 +18,7 @@ public class Demo {
 
     public static void main(String[] args) throws IOException {
         log.info("Start");
-        ReportGenerator reportGenerator = new ReportGenerator();
+        ReportGeneratorImpl reportGenerator = new ReportGeneratorImpl();
         byte[] report = reportGenerator.generateReport(DocumentType.getDocumentType("PDF"),
                 "payment",
                 Arrays.asList(RenderPaymentDto.builder()

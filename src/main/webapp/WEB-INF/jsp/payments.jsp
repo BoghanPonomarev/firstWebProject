@@ -4,7 +4,7 @@
     <title>Payments</title>
     <link href="${contextPath}/css/users_drop-menu.css" rel="stylesheet"/>
     <%@ include file="/WEB-INF/jspf/imports.jspf" %>
-    <script type="text/javascript" src="${contextPath}/js/sort_requests.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/sortRequest.js"></script>
 </head>
 <body>
 <div class="basix-container">
@@ -22,14 +22,6 @@
                         <div class="table-responsive" data-v-49aa1870="">
                             <div class="d-flex flex-md-row flex-column justify-content-md-between align-items-center">
                                 <div data-v-43fdb2a9="" class="form-group with-icon-left">
-                                    <div data-v-43fdb2a9="" class="input-group">
-                                        <form data-v-43fdb2a9="" class="form-inline">
-                                            <button data-v-43fdb2a9="" type="submit"
-                                                    class="btn btn-outline-success my-2 my-sm-0"><i data-v-43fdb2a9=""
-                                                                                                    class="fa fa fa-search"></i>
-                                            </button>
-                                        </form>
-                                    </div>
                                 </div>
                                 <form style="margin-left: 20px ;width: 200px">
                                     <fmt:message key="profile.sort.by"/>:<select data-v-12201132="" onchange="paymentSortRequest(${requestScope.page})" id="sort"
@@ -85,9 +77,12 @@
                                                     <li>
                                                         <a href="#"><i class="fa fa-sort-desc" style="color:black;" aria-hidden="true"></i></a>
                                                         <ul>
-                                                            <li><a href="${contextPath}/payments/delete?payment_id=${payment.id}"><fmt:message key="payment.delete"/></a></li>
+                                                            <li><a href="${contextPath}/payments/delete?paymentId=${payment.id}"><fmt:message key="payment.delete"/></a></li>
+                                                            <c:if test="${payment.status eq 'SENT'}">
+                                                                <li><a href="${contextPath}/payments/report?paymentId=${payment.id}&documentType=PDF"><fmt:message key="payment.report.pdf"/></a></li>
+                                                            </c:if>
                                                             <c:if test="${payment.status eq 'PREPARED'}">
-                                                            <li><a href="${contextPath}/payments/execute?payment_id=${payment.id}"><fmt:message key="payment.execute"/></a></li>
+                                                            <li><a href="${contextPath}/payments/execute?paymentId=${payment.id}"><fmt:message key="payment.execute"/></a></li>
                                                             </c:if>
                                                         </ul>
                                                     </li>

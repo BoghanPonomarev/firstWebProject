@@ -10,9 +10,6 @@ import lombok.Setter;
 @Getter
 public class User {
     private int id;
-    private String firstName;
-    private String secondName;
-    private String thirdName;
     private String password;
     private String phoneNumber;
     private String email;
@@ -21,8 +18,7 @@ public class User {
 
     public enum Role {
         USER,
-        ADMIN,
-        SUPER_ADMIN
+        ADMIN
     }
 }
 

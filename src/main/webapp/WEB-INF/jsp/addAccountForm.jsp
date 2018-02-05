@@ -3,7 +3,7 @@
 <head>
     <title>Accounts</title>
     <link href="${contextPath}/css/asking_for_delete.css" rel="stylesheet" type="text/css" media="all"/>
-    <script type="text/javascript" src="${contextPath}/js/account_validation.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/accountValidation.js"></script>
     <%@ include file="/WEB-INF/jspf/imports.jspf"%>
 </head>
 <body>

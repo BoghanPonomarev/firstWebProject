@@ -37,7 +37,7 @@ public final class Mapping {
         pages.put(Page.AUTHORIZATION_PAGE, "/WEB-INF/jsp/authorization.jsp");
         pages.put(Page.REGISTRATION_PAGE, "/WEB-INF/jsp/registration.jsp");
         pages.put(Page.USER_PROFILE_PAGE, "/WEB-INF/jsp/profile.jsp");
-        pages.put(Page.USER_SETTING_PAGE, "/WEB-INF/jsp/user_settings.jsp");
+        pages.put(Page.USER_SETTING_PAGE, "/WEB-INF/jsp/userSettings.jsp");
         pages.put(Page.USER_SETTING_CONGRATULATION_PAGE, "/WEB-INF/jsp/congratulation_about_changing_data.jsp");
         pages.put(Page.USER_SETTING_ERROR_PAGE, "/WEB-INF/jsp/changing_data_error.jsp");
         pages.put(Page.USER_ADD_ACCOUNT_PAGE, "/WEB-INF/jsp/addAccountForm.jsp");
@@ -48,6 +48,9 @@ public final class Mapping {
         pages.put(Page.PAYMENT_SHOW_ALL,"/WEB-INF/jsp/payments.jsp");
         pages.put(Page.REPLENISH_FORM_PAGE,"/WEB-INF/jsp/replenishForm.jsp");
         pages.put(Page.REPLENISH_SUCCESS_PAGE,"/WEB-INF/jsp/successfulReplenish.jsp");
+        pages.put(Page.ADMIN_REQUESTED_ACCOUNTS_PAGE,"/WEB-INF/jsp/requestedAccounts.jsp");
+        pages.put(Page.USER_SUCCESS_EMAIL_SENDING_PAGE,"/WEB-INF/jsp/successEmailSending.jsp");
+        pages.put(Page.USER_SUCCESS_EMAIL_CONFIRM_PAGE,"/WEB-INF/jsp/successEmailConfirm.jsp");
     }
 
     public static Class getCommand(String command) {
@@ -71,6 +74,7 @@ public final class Mapping {
 
     public enum Page {
         ADMIN_SHOW_USERS,
+        ADMIN_REQUESTED_ACCOUNTS_PAGE,
         AUTHORIZATION_PAGE,
         REGISTRATION_PAGE,
         USER_ADD_ACCOUNT_PAGE,
@@ -78,6 +82,8 @@ public final class Mapping {
         USER_SETTING_PAGE,
         USER_SETTING_CONGRATULATION_PAGE,
         USER_SETTING_ERROR_PAGE,
+        USER_SUCCESS_EMAIL_SENDING_PAGE,
+        USER_SUCCESS_EMAIL_CONFIRM_PAGE,
         PAYMENT_FORM_PAGE,
         PAYMENT_SUCCESSFUL_PAGE,
         PAYMENT_DELETING_PAGE,

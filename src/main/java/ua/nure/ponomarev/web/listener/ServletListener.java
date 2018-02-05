@@ -7,6 +7,8 @@ import ua.nure.ponomarev.currency.CurrencyManagerImpl;
 import ua.nure.ponomarev.dao.AccountDao;
 import ua.nure.ponomarev.dao.UserDao;
 import ua.nure.ponomarev.dao.impl.*;
+import ua.nure.ponomarev.document.ReportGenerator;
+import ua.nure.ponomarev.document.ReportGeneratorImpl;
 import ua.nure.ponomarev.hash.HashGenerator;
 import ua.nure.ponomarev.hash.ShaHashGeneratorImpl;
 import ua.nure.ponomarev.holder.RequestedAccountHolderImpl;
@@ -26,6 +28,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.sql.DataSource;
+import java.io.IOException;
 
 /**
  * @author Bogdan_Ponamarev.
@@ -68,9 +71,15 @@ public class ServletListener implements ServletContextListener {
 
     private void paymentServiceInitialized(ServletContext servletContext) {
         currencyManager = new CurrencyManagerImpl(new CurrencyDaoImpl(dataSource));
+        ReportGenerator reportGenerator=null;
+        try {
+            reportGenerator = new ReportGeneratorImpl();
+        } catch (IOException e) {
+            logger.fatal("Could not create report generator "+e);
+        }
         servletContext.setAttribute("payment_service", new PaymentServiceImpl(
                 transactionManager, new SqlPaymentDao(dataSource, accountDao), accountDao
-                , currencyManager
+                , currencyManager,reportGenerator
         ));
     }
 

@@ -18,4 +18,6 @@ public interface PaymentDao {
     List<Payment> getAll(int userId,int startCount,int quantity,String sortedColumn) throws DbException;
 
     List<Payment> getAll(int userId,int startCount,int quantity,String sortedColumn,boolean onlyReadyPayments) throws DbException;
+
+
 }

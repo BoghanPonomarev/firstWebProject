@@ -32,9 +32,6 @@ public class Transformer {
         user.setEmail(userForm.getEmail());
         user.setPhoneNumber(userForm.getPhoneNumber());
         user.setId(userForm.getId());
-        user.setFirstName(userForm.getFirstName());
-        user.setSecondName(userForm.getSecondName());
-        user.setThirdName(userForm.getThirdName());
         user.setPassword(userForm.getPassword());
         return user;
     }

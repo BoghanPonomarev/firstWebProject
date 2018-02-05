@@ -36,7 +36,7 @@ public class RequestForUnbanCommand extends FrontCommand {
             response.sendError(500);
         } else {
             try {
-                accountService.setRequestedValue(Integer.parseInt(accountId));
+                accountService.setRequestedValue(Integer.parseInt(accountId),false);
                 if (role.equals(User.Role.USER)) {
                     redirect(request.getContextPath() + "/user/profile?userId=" + request.getSession().getAttribute("userId")
                             + "&sort="+request.getParameter("sort"));

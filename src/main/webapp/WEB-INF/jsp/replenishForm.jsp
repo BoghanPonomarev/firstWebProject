@@ -3,7 +3,7 @@
 <head>
     <title>Replenish</title>
     <%@ include file="/WEB-INF/jspf/imports.jspf" %>
-    <script type="text/javascript" src="${contextPath}/js/replenish_validation.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/replenishValidation.js"></script>
 
 </head>
 <body>

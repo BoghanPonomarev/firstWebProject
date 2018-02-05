@@ -3,8 +3,8 @@
 <head>
     <title>Home</title>
     <link href="${contextPath}/css/asking_for_delete.css" rel="stylesheet" type="text/css" media="all"/>
-    <script type="text/javascript" src="${contextPath}/js/account_deleting.js"></script>
-    <script type="text/javascript" src="${contextPath}/js/sort_requests.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/accountDeleting.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/sortRequest.js"></script>
     <link href="${contextPath}/css/users_drop-menu.css" rel="stylesheet"/>
     <%@ include file="/WEB-INF/jspf/imports.jspf" %>
 </head>
@@ -36,15 +36,6 @@
                             <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.userCard.phone"/> : ${requestScope.user.phoneNumber}</h5>
                             <c:if test="${requestScope.user.email!=null}">
                                 <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.userCard.email"/> : ${requestScope.user.email}</h5>
-                            </c:if>
-                            <c:if test="${requestScope.user.firstName!=null}">
-                                <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.userCard.firstName"/> : ${requestScope.user.firstName}</h5>
-                            </c:if>
-                            <c:if test="${requestScope.user.secondName!=null}">
-                                <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.userCard.secondName"/> : ${requestScope.user.secondName}</h5>
-                            </c:if>
-                            <c:if test="${requestScope.user.thirdName!=null}">
-                                <h5 class="text-sm-center mt-2 mb-1"><fmt:message key="profile.userCard.thirdName"/> : ${requestScope.user.thirdName}</h5>
                             </c:if>
                         </div>
                         <hr>

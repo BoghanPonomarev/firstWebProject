@@ -3,7 +3,7 @@
 <head>
     <title>Services</title>
     <%@ include file="/WEB-INF/jspf/imports.jspf"%>
-    <script type="text/javascript" src="${contextPath}/js/payment_validation.js"></script>
+    <script type="text/javascript" src="${contextPath}/js/paymentValidation.js"></script>
 
 </head>
 <body>

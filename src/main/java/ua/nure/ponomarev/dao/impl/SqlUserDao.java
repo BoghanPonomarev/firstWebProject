@@ -24,7 +24,7 @@ public class SqlUserDao implements UserDao {
     private static final String SQL_CREATE_QUERY = "INSERT INTO webproject.users (password,phone_number,language_id) VALUES (?,?,(SELECT id FROM webproject.languages WHERE name = 'en'))";
     private static final String SQL_SELECT_QUERY_TO_FILL = "SELECT * FROM webproject.users WHERE ";
     private static final String SQL_SET_LANGUAGE_QUERY = "UPDATE webproject.users SET language_id = (SELECT id FROM webproject.languages WHERE name = ?) WHERE id=?";
-    public static final String SQL_GET_LANGUAGE_QUERY = "SELECT name FROM webproject.languages WHERE id in (SELECT language_id FROM webproject.users WHERE id = ?)";
+    private static final String SQL_GET_LANGUAGE_QUERY = "SELECT name FROM webproject.languages WHERE id in (SELECT language_id FROM webproject.users WHERE id = ?)";
     private static Logger logger = LogManager.getLogger(SqlUserDao.class);
     private SqlDaoConnectionManager connectionManager;
 
@@ -138,11 +138,8 @@ public class SqlUserDao implements UserDao {
                 user.setPassword(resultSet.getString(2));
                 user.setPhoneNumber(resultSet.getString(3));
                 user.setEmail(resultSet.getString(4));
-                user.setFirstName(resultSet.getString(5));
-                user.setSecondName(resultSet.getString(6));
-                user.setThirdName(resultSet.getString(7));
-                user.setRole(User.Role.valueOf(resultSet.getString(8)));
-                user.setBanned(resultSet.getBoolean(9));
+                user.setRole(User.Role.valueOf(resultSet.getString(5)));
+                user.setBanned(resultSet.getBoolean(6));
             }
         } catch (SQLException ex) {
             logger.error("Something wrong with data filling", ex);

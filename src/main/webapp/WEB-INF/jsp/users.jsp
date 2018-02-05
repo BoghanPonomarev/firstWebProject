@@ -20,14 +20,6 @@
                         <div class="table-responsive" data-v-49aa1870="">
                             <div class="d-flex flex-md-row flex-column justify-content-md-between align-items-center">
                                 <div data-v-43fdb2a9="" class="form-group with-icon-left">
-                                    <div data-v-43fdb2a9="" class="input-group">
-                                        <form data-v-43fdb2a9="" class="form-inline">
-                                            <button data-v-43fdb2a9="" type="submit"
-                                                    class="btn btn-outline-success my-2 my-sm-0"><i data-v-43fdb2a9=""
-                                                                                                    class="fa fa fa-search"></i>
-                                            </button>
-                                        </form>
-                                    </div>
                                 </div>
                             </div>
                             <table data-v-6159491e="" class="vuetable table table-striped">

@@ -32,5 +32,5 @@ public interface AccountService {
 
     void setBanValue(int accountId) throws DbException;
 
-    void setRequestedValue(int accountId)throws DbException,CredentialException;
+    void setRequestedValue(int accountId,boolean isAdmin)throws DbException,CredentialException;
 }

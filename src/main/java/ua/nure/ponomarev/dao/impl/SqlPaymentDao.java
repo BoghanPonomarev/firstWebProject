@@ -6,6 +6,7 @@ import ua.nure.ponomarev.criteria.UserCriteria;
 import ua.nure.ponomarev.dao.AccountDao;
 import ua.nure.ponomarev.dao.PaymentDao;
 import ua.nure.ponomarev.dao.SqlDaoConnectionManager;
+import ua.nure.ponomarev.document.ReportGenerator;
 import ua.nure.ponomarev.entity.Account;
 import ua.nure.ponomarev.entity.Payment;
 import ua.nure.ponomarev.entity.User;
@@ -28,9 +29,7 @@ public class SqlPaymentDao implements PaymentDao {
     private static final String SQL_DELETE_PAYMENT_QUERY = "DELETE FROM webproject.payments WHERE id=?";
     private SqlDaoConnectionManager connectionManager;
     private AccountDao accountDao;
-
     public SqlPaymentDao(DataSource dataSource,AccountDao accountDao) {
-
         connectionManager = new SqlDaoConnectionManager(dataSource);
         this.accountDao =accountDao;
     }

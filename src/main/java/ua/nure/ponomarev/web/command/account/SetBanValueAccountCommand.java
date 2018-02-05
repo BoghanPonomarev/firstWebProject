@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * @author Bogdan_Ponamarev.
  */
-public class BanAccountCommand extends FrontCommand {
+public class SetBanValueAccountCommand extends FrontCommand {
     private AccountService accountService;
 
     @Override
@@ -34,6 +34,12 @@ public class BanAccountCommand extends FrontCommand {
         } catch (DbException e) {
             ExceptionHandler.handleException(e, request, response);
         }
-        redirect(servletContext.getContextPath()+ "/user/profile?userId="+userId);
+        String link;
+        if((link = request.getParameter("link"))!=null){
+            redirect(servletContext.getContextPath() + link);
+        }
+        else {
+            redirect(servletContext.getContextPath() + "/user/profile?userId=" + userId);
+        }
     }
 }
