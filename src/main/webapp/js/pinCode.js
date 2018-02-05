@@ -47,8 +47,8 @@ function sendCode() {
 
 
 function changeForm() {
-    changeHidenOfElement("reg_block");
-    changeHidenOfElement("pin_code_block");
+    changeHiddenOfElement("reg_block");
+    changeHiddenOfElement("pin_code_block");
     document.getElementById("repeat_phone").innerHTML = "Your phone number is: "
         + document.getElementById("phone_number").value;
     $("#pin_code_error").css({"display": "none"});
